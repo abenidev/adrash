@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:adrash/core/constants/app_strings.dart';
+import 'package:adrash/features/auth/model/user_data.dart';
 import 'package:adrash/main.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +18,7 @@ final authRemoteRepositoryProvider = StateProvider<AuthRemoteRepository>((ref) {
 class AuthRemoteRepository {
   AuthRemoteRepository();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   Future<User?> signInWithGoogle() async {
@@ -47,6 +51,30 @@ class AuthRemoteRepository {
     }
   }
 
+  User? getFirebaseAuthUser() {
+    return _auth.currentUser;
+  }
+
+  Future<UserData?> getUserDataByEmail(String email) async {
+    try {
+      // Query Firestore to get user data where the email matches
+      QuerySnapshot userQuery = await _firestore.collection(usersCollectionName).where('email', isEqualTo: email).get();
+      final docs = userQuery.docs;
+      if (docs.isEmpty) {
+        return null;
+      }
+      final userData = docs.first.data() as Map<String, dynamic>;
+      final user = UserData.fromMap(userData);
+      return user;
+    } catch (e) {
+      logger.e("Error fetching user data: $e");
+      rethrow;
+    }
+  }
+
+  //!
+
+  //
   String generateNonce([int length = 32]) {
     final charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
     final random = Random.secure();

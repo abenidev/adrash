@@ -1,6 +1,8 @@
 import 'package:adrash/core/widgets/loader_manager.dart';
 import 'package:adrash/features/Home/view/widgets/map_widget.dart';
 import 'package:adrash/features/auth/viewmodel/auth_viewmodel.dart';
+import 'package:adrash/main.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,6 +16,8 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
+    logger.i(FirebaseAuth.instance.currentUser);
+
     return Scaffold(
       body: SafeArea(
         child: Container(

@@ -37,17 +37,12 @@ class _MapWidgetState extends ConsumerState<MapWidget> {
   // Get user's current location
   Future<void> _getUserLocation() async {
     Position position = await Geolocator.getCurrentPosition(
-      locationSettings: Platform.isAndroid
-          ? AndroidSettings(
-              accuracy: LocationAccuracy.high,
-            )
-          : AppleSettings(
-              accuracy: LocationAccuracy.high,
-            ),
+      locationSettings: Platform.isAndroid ? AndroidSettings(accuracy: LocationAccuracy.high) : AppleSettings(accuracy: LocationAccuracy.high),
     );
     setState(() {
       _currentPosition = LatLng(position.latitude, position.longitude);
     });
+    logger.i('lat: ${position.latitude} | long: ${position.longitude}');
     _mapController.animateCamera(CameraUpdate.newLatLng(_currentPosition));
   }
 
@@ -64,7 +59,7 @@ class _MapWidgetState extends ConsumerState<MapWidget> {
         onMapCreated: _onMapCreated,
         initialCameraPosition: CameraPosition(
           target: _currentPosition,
-          zoom: 14.0,
+          zoom: 16.0,
         ),
         myLocationEnabled: true, // Shows blue dot for current location
         myLocationButtonEnabled: true, // Enables "My Location" button

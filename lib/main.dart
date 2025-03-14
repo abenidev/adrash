@@ -1,5 +1,8 @@
-import 'package:adrash/features/Home/view/home_page.dart';
+import 'package:adrash/features/Home/view/pages/home_page.dart';
+import 'package:adrash/features/auth/model/user_data.dart';
 import 'package:adrash/features/auth/view/auth_page.dart';
+import 'package:adrash/features/auth/view/register_page.dart';
+import 'package:adrash/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:adrash/firebase_options.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -118,17 +121,26 @@ class _RootState extends ConsumerState<Root> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     bool isDarkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    UserData? userData = ref.watch(authViewmodelProvider);
 
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        // If user is logged in, go to HomePage
         if (snapshot.connectionState == ConnectionState.active) {
           final User? user = snapshot.data;
+          bool isAuthenticatedAndRegistered = user != null && userData != null;
+          bool isAuthenticatedNotRegistered = user != null && userData == null;
+
+          if (isAuthenticatedAndRegistered) {
+            return const HomePage();
+          }
+
+          if (isAuthenticatedNotRegistered) {
+            return RegisterPage();
+          }
+
           if (user == null) {
             return const AuthPage();
-          } else {
-            return const HomePage();
           }
         }
 
