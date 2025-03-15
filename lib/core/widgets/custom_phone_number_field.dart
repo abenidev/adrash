@@ -21,7 +21,7 @@ class CustomPhoneNumberField extends StatelessWidget {
       keyboardType: TextInputType.phone,
       inputFormatters: [
         FilteringTextInputFormatter.digitsOnly,
-        LengthLimitingTextInputFormatter(10),
+        LengthLimitingTextInputFormatter(9),
       ],
       decoration: InputDecoration(
         labelText: label,

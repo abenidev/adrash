@@ -48,6 +48,7 @@ class AuthRemoteRepository {
       await _auth.signOut();
     } catch (e) {
       logger.e("Error during Sign-Out: $e");
+      rethrow;
     }
   }
 
@@ -69,6 +70,18 @@ class AuthRemoteRepository {
     } catch (e) {
       logger.e("Error fetching user data: $e");
       rethrow;
+    }
+  }
+
+  Future<UserData?> addUserData(UserData userData) async {
+    try {
+      DocumentReference docRef = await _firestore.collection(usersCollectionName).add(userData.toMap());
+      UserData addedUserData = userData.copyWith(docDataId: docRef.id);
+      await _firestore.collection(usersCollectionName).doc(docRef.id).set(addedUserData.toMap(), SetOptions(merge: true));
+      return addedUserData;
+    } catch (e) {
+      logger.e("Error adding user data: $e");
+      return null;
     }
   }
 

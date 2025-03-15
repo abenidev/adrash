@@ -16,6 +16,7 @@ class UserData {
   String profilePictureUrl;
   double lastLocLat;
   double lastLocLong;
+  bool isDriverAvailable;
   VehicleData? vehicleData;
 
   UserData({
@@ -29,6 +30,7 @@ class UserData {
     required this.profilePictureUrl,
     required this.lastLocLat,
     required this.lastLocLong,
+    this.isDriverAvailable = false,
     this.vehicleData,
   });
 
@@ -43,6 +45,7 @@ class UserData {
     String? profilePictureUrl,
     double? lastLocLat,
     double? lastLocLong,
+    bool? isDriverAvailable,
     VehicleData? vehicleData,
   }) {
     return UserData(
@@ -56,6 +59,7 @@ class UserData {
       profilePictureUrl: profilePictureUrl ?? this.profilePictureUrl,
       lastLocLat: lastLocLat ?? this.lastLocLat,
       lastLocLong: lastLocLong ?? this.lastLocLong,
+      isDriverAvailable: isDriverAvailable ?? this.isDriverAvailable,
       vehicleData: vehicleData ?? this.vehicleData,
     );
   }
@@ -80,6 +84,7 @@ class UserData {
       // 'lastLocLat': lastLocLat,
       // 'lastLocLong': lastLocLong,
       'lastLocData': data,
+      'isDriverAvailable': isDriverAvailable,
       'vehicleData': vehicleData?.toMap(),
     };
   }
@@ -99,6 +104,7 @@ class UserData {
       profilePictureUrl: map['profilePictureUrl'] as String,
       lastLocLat: lastLocGeoPoint.latitude,
       lastLocLong: lastLocGeoPoint.longitude,
+      isDriverAvailable: map['isDriverAvailable'] as bool,
       vehicleData: map['vehicleData'] != null ? VehicleData.fromMap(map['vehicleData'] as Map<String, dynamic>) : null,
     );
   }
@@ -109,7 +115,7 @@ class UserData {
 
   @override
   String toString() {
-    return 'UserData(id: $id, docDataId: $docDataId, name: $name, email: $email, phoneNumber: $phoneNumber, role: $role, rating: $rating, profilePictureUrl: $profilePictureUrl, lastLocLat: $lastLocLat, lastLocLong: $lastLocLong, vehicleData: $vehicleData)';
+    return 'UserData(id: $id, docDataId: $docDataId, name: $name, email: $email, phoneNumber: $phoneNumber, role: $role, rating: $rating, profilePictureUrl: $profilePictureUrl, lastLocLat: $lastLocLat, lastLocLong: $lastLocLong, isDriverAvailable: $isDriverAvailable, vehicleData: $vehicleData)';
   }
 
   @override
@@ -126,6 +132,7 @@ class UserData {
         other.profilePictureUrl == profilePictureUrl &&
         other.lastLocLat == lastLocLat &&
         other.lastLocLong == lastLocLong &&
+        other.isDriverAvailable == isDriverAvailable &&
         other.vehicleData == vehicleData;
   }
 
@@ -141,6 +148,7 @@ class UserData {
         profilePictureUrl.hashCode ^
         lastLocLat.hashCode ^
         lastLocLong.hashCode ^
+        isDriverAvailable.hashCode ^
         vehicleData.hashCode;
   }
 }

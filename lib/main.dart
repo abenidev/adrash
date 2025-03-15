@@ -110,6 +110,13 @@ class _RootState extends ConsumerState<Root> with TickerProviderStateMixin {
     // if (mounted) {
     //   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AuthPage()));
     // }
+
+    //
+    User? user = ref.read(authViewmodelProvider.notifier).getFirebaseAuthUser();
+    if (user == null) return;
+    if (user.email == null) return;
+    await ref.read(authViewmodelProvider.notifier).getUserDataByEmail(user.email!);
+    ref.read(isLoadingUserDataProvider.notifier).state = false;
   }
 
   @override
@@ -122,14 +129,15 @@ class _RootState extends ConsumerState<Root> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     bool isDarkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
     UserData? userData = ref.watch(authViewmodelProvider);
+    bool isUserDataLoading = ref.watch(isLoadingUserDataProvider);
 
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
           final User? user = snapshot.data;
-          bool isAuthenticatedAndRegistered = user != null && userData != null;
-          bool isAuthenticatedNotRegistered = user != null && userData == null;
+          bool isAuthenticatedAndRegistered = user != null && userData != null && !isUserDataLoading;
+          bool isAuthenticatedNotRegistered = user != null && userData == null && !isUserDataLoading;
 
           if (isAuthenticatedAndRegistered) {
             return const HomePage();

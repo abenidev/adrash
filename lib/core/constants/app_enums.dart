@@ -23,3 +23,9 @@ extension StringToUserRole on String {
     }
   }
 }
+
+//
+enum UserPhotoModalSelectedOption {
+  camera,
+  gallery,
+}
