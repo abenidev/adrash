@@ -29,3 +29,9 @@ enum UserPhotoModalSelectedOption {
   camera,
   gallery,
 }
+
+enum UserAuthStatus {
+  initial,
+  unregistered,
+  registered,
+}

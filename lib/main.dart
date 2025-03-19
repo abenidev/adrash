@@ -1,3 +1,4 @@
+import 'package:adrash/core/constants/app_enums.dart';
 import 'package:adrash/features/Home/view/pages/home_page.dart';
 import 'package:adrash/features/auth/model/user_data.dart';
 import 'package:adrash/features/auth/view/auth_page.dart';
@@ -46,13 +47,38 @@ Future<void> main() async {
   }
   //* Firebase config end -----------------------------------------------------
 
+  // Create a ProviderContainer to use providers before ProviderScope
+  final container = ProviderContainer();
+  UserAuthStatus userAuthStatus = UserAuthStatus.initial;
+  User? user = container.read(authViewmodelProvider.notifier).getFirebaseAuthUser();
+  if (user != null) {
+    // Get user data
+    UserData? userData = await container.read(authViewmodelProvider.notifier).getUserDataByEmail(user.email!);
+    if (userData != null) {
+      //Go to home page
+      userAuthStatus = UserAuthStatus.registered;
+    } else {
+      //Go to register page
+      userAuthStatus = UserAuthStatus.unregistered;
+    }
+  } else {
+    //Go to auth page
+    userAuthStatus = UserAuthStatus.initial;
+  }
+
   runApp(
-    const ProviderScope(child: MyApp()),
+    UncontrolledProviderScope(
+      container: container,
+      child: MyApp(
+        userAuthStatus: userAuthStatus,
+      ),
+    ),
   );
 }
 
 class MyApp extends ConsumerWidget {
-  const MyApp({super.key});
+  final UserAuthStatus userAuthStatus;
+  const MyApp({super.key, required this.userAuthStatus});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -110,13 +136,6 @@ class _RootState extends ConsumerState<Root> with TickerProviderStateMixin {
     // if (mounted) {
     //   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AuthPage()));
     // }
-
-    //
-    User? user = ref.read(authViewmodelProvider.notifier).getFirebaseAuthUser();
-    if (user == null) return;
-    if (user.email == null) return;
-    await ref.read(authViewmodelProvider.notifier).getUserDataByEmail(user.email!);
-    ref.read(isLoadingUserDataProvider.notifier).state = false;
   }
 
   @override
@@ -129,26 +148,30 @@ class _RootState extends ConsumerState<Root> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     bool isDarkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
     UserData? userData = ref.watch(authViewmodelProvider);
-    bool isUserDataLoading = ref.watch(isLoadingUserDataProvider);
+    bool isSigningIn = ref.watch(isSigningInProvider);
 
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
           final User? user = snapshot.data;
-          bool isAuthenticatedAndRegistered = user != null && userData != null && !isUserDataLoading;
-          bool isAuthenticatedNotRegistered = user != null && userData == null && !isUserDataLoading;
+          bool isAuthenticatedAndRegistered = user != null && userData != null;
+          bool isAuthenticatedNotRegistered = user != null && userData == null;
 
           if (isAuthenticatedAndRegistered) {
             return const HomePage();
           }
 
-          if (isAuthenticatedNotRegistered) {
+          if (isAuthenticatedNotRegistered && !isSigningIn) {
             return RegisterPage();
           }
 
           if (user == null) {
             return const AuthPage();
+          }
+
+          if (isSigningIn) {
+            return const Scaffold();
           }
         }
 

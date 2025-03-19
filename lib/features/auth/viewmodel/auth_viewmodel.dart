@@ -4,32 +4,35 @@ import 'package:adrash/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final isLoadingUserDataProvider = StateProvider<bool>((ref) {
-  return true;
+final isSigningInProvider = StateProvider<bool>((ref) {
+  return false;
 });
 
 final authViewmodelProvider = StateNotifierProvider<AuthViewmodelNotifier, UserData?>((ref) {
   final authRemoteRepository = ref.watch(authRemoteRepositoryProvider);
-  final isLoadingUserDataStateProvider = ref.watch(isLoadingUserDataProvider.notifier);
+  final isSigningInStateProvider = ref.watch(isSigningInProvider.notifier);
   return AuthViewmodelNotifier(
     authRemoteRepository: authRemoteRepository,
-    isLoadingUserDataProvider: isLoadingUserDataStateProvider,
+    isSigningInProvider: isSigningInStateProvider,
   );
 });
 
 class AuthViewmodelNotifier extends StateNotifier<UserData?> {
   AuthRemoteRepository authRemoteRepository;
-  StateController<bool> isLoadingUserDataProvider;
-  AuthViewmodelNotifier({required this.authRemoteRepository, required this.isLoadingUserDataProvider}) : super(null);
+  StateController<bool> isSigningInProvider;
+  AuthViewmodelNotifier({required this.authRemoteRepository, required this.isSigningInProvider}) : super(null);
 
   Future<void> signInWithGoogle() async {
     try {
+      isSigningInProvider.state = true;
       User? user = await authRemoteRepository.signInWithGoogle();
       if (user != null) {
         await getUserDataByEmail(user.email!);
       }
+      isSigningInProvider.state = false;
     } catch (e) {
       logger.e('Error occured while signing in with Google: $e');
+      isSigningInProvider.state = false;
     }
   }
 
@@ -37,7 +40,6 @@ class AuthViewmodelNotifier extends StateNotifier<UserData?> {
     try {
       await authRemoteRepository.signOut();
       state = null;
-      isLoadingUserDataProvider.state = true;
     } catch (e) {
       logger.e(e);
     }
@@ -47,9 +49,9 @@ class AuthViewmodelNotifier extends StateNotifier<UserData?> {
     return authRemoteRepository.getFirebaseAuthUser();
   }
 
-  Future<UserData?> getUserDataByEmail(String email) async {
+  Future<UserData?> getUserDataByEmail(String email, {bool setState = true}) async {
     UserData? userData = await authRemoteRepository.getUserDataByEmail(email);
-    state = userData;
+    if (setState) state = userData;
     return userData;
   }
 
