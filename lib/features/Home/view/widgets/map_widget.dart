@@ -35,10 +35,10 @@ class _MapWidgetState extends ConsumerState<MapWidget> {
         onMapCreated: (controller) => _onMapCreated(controller, ref),
         initialCameraPosition: CameraPosition(
           target: currentPosition,
-          zoom: 16.0,
+          zoom: 17.4,
         ),
         myLocationEnabled: isLocationPermissionEnabled, // Shows blue dot for current location
-        myLocationButtonEnabled: true, // Enables "My Location" button
+        myLocationButtonEnabled: false, // Enables "My Location" button
       ),
     );
   }

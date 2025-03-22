@@ -41,6 +41,7 @@ dependencies:
   uuid: ^4.5.1
   easy_stepper: ^0.8.5+1
   location: ^8.0.0
+  cached_network_image: ^3.4.1
 
 dev_dependencies:
   flutter_test:
