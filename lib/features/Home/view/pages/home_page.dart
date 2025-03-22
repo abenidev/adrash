@@ -23,6 +23,16 @@ class _HomePageState extends ConsumerState<HomePage> {
   void initState() {
     super.initState();
     afterBuildCreated(() async {
+      //!
+      PermissionStatus permissionStatus = await ref.read(userLocationViewmodelProvider.notifier).requestLocationPermission();
+      if (permissionStatus == PermissionStatus.granted) {
+        //TODO: handle cases when user doesn't allow permission or service
+        bool isLocationServiceEnabled = await ref.read(userLocationViewmodelProvider.notifier).requestLocationService();
+        if (isLocationServiceEnabled) {
+          ref.read(userLocationViewmodelProvider.notifier).getCurrentLocationData();
+        }
+      }
+      //!
       // UserRole userRole = ref.read(authViewmodelProvider.notifier).getUserRole();
       // if (userRole == UserRole.rider) {
       //   showModalBottomSheet(

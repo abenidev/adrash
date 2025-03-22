@@ -1,6 +1,5 @@
 import 'package:adrash/core/constants/app_enums.dart';
 import 'package:adrash/features/Home/view/pages/home_page.dart';
-import 'package:adrash/features/Home/viewmodel/user_location_viewmodel.dart';
 import 'package:adrash/features/auth/view/auth_page.dart';
 import 'package:adrash/features/auth/view/register_page.dart';
 import 'package:adrash/features/auth/viewmodel/auth_viewmodel.dart';
@@ -14,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:location/location.dart';
 import 'package:logger/web.dart';
 import 'package:nb_utils/nb_utils.dart';
 
@@ -24,7 +22,6 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await initialize();
-  // objectbox = await ObjectBox.create();
 
   //* Firebase config start -----------------------------------------------------
   await Firebase.initializeApp(
@@ -106,16 +103,6 @@ class _RootState extends ConsumerState<Root> with TickerProviderStateMixin {
 
   _init() async {
     UserAuthStatus userAuthStatus = await ref.read(authViewmodelProvider.notifier).getUserAuthStatus();
-    //!
-    PermissionStatus permissionStatus = await ref.read(userLocationViewmodelProvider.notifier).requestLocationPermission();
-    if (permissionStatus == PermissionStatus.granted) {
-      //TODO: handle cases when user doesn't allow permission or service
-      bool isLocationServiceEnabled = await ref.read(userLocationViewmodelProvider.notifier).requestLocationService();
-      if (isLocationServiceEnabled) {
-        ref.read(userLocationViewmodelProvider.notifier).getCurrentLocationData();
-      }
-    }
-    //!
 
     if (mounted) {
       if (userAuthStatus == UserAuthStatus.registered) {
