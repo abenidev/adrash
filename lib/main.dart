@@ -1,12 +1,10 @@
 import 'package:adrash/core/constants/app_enums.dart';
 import 'package:adrash/features/Home/view/pages/home_page.dart';
-import 'package:adrash/features/auth/model/user_data.dart';
 import 'package:adrash/features/auth/view/auth_page.dart';
 import 'package:adrash/features/auth/view/register_page.dart';
 import 'package:adrash/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:adrash/firebase_options.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
@@ -46,39 +44,19 @@ Future<void> main() async {
     };
   }
   //* Firebase config end -----------------------------------------------------
-
   // Create a ProviderContainer to use providers before ProviderScope
   final container = ProviderContainer();
-  UserAuthStatus userAuthStatus = UserAuthStatus.initial;
-  User? user = container.read(authViewmodelProvider.notifier).getFirebaseAuthUser();
-  if (user != null) {
-    // Get user data
-    UserData? userData = await container.read(authViewmodelProvider.notifier).getUserDataByEmail(user.email!);
-    if (userData != null) {
-      //Go to home page
-      userAuthStatus = UserAuthStatus.registered;
-    } else {
-      //Go to register page
-      userAuthStatus = UserAuthStatus.unregistered;
-    }
-  } else {
-    //Go to auth page
-    userAuthStatus = UserAuthStatus.initial;
-  }
 
   runApp(
     UncontrolledProviderScope(
       container: container,
-      child: MyApp(
-        userAuthStatus: userAuthStatus,
-      ),
+      child: MyApp(),
     ),
   );
 }
 
 class MyApp extends ConsumerWidget {
-  final UserAuthStatus userAuthStatus;
-  const MyApp({super.key, required this.userAuthStatus});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -125,17 +103,18 @@ class _RootState extends ConsumerState<Root> with TickerProviderStateMixin {
   }
 
   _init() async {
-    // await UtilsWrapper.init(
-    //   kAndroidAppPackageName: kAppAndroidPackageName,
-    //   // kIosAppBundleId: "kIosBundleId",
-    //   initUnityAds: false,
-    // );
-    // await LocalNotifWrapper.init();
-    // await FirebaseMessagingService.initNotifications();
-
-    // if (mounted) {
-    //   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AuthPage()));
-    // }
+    UserAuthStatus userAuthStatus = await ref.read(authViewmodelProvider.notifier).getUserAuthStatus();
+    if (mounted) {
+      if (userAuthStatus == UserAuthStatus.registered) {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));
+      }
+      if (userAuthStatus == UserAuthStatus.unregistered) {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RegisterPage()));
+      }
+      if (userAuthStatus == UserAuthStatus.initial) {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AuthPage()));
+      }
+    }
   }
 
   @override
@@ -147,52 +126,22 @@ class _RootState extends ConsumerState<Root> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     bool isDarkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
-    UserData? userData = ref.watch(authViewmodelProvider);
-    bool isSigningIn = ref.watch(isSigningInProvider);
 
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.active) {
-          final User? user = snapshot.data;
-          bool isAuthenticatedAndRegistered = user != null && userData != null;
-          bool isAuthenticatedNotRegistered = user != null && userData == null;
-
-          if (isAuthenticatedAndRegistered) {
-            return const HomePage();
-          }
-
-          if (isAuthenticatedNotRegistered && !isSigningIn) {
-            return RegisterPage();
-          }
-
-          if (user == null) {
-            return const AuthPage();
-          }
-
-          if (isSigningIn) {
-            return const Scaffold();
-          }
-        }
-
-        // Loading Indicator
-        return Scaffold(
-          backgroundColor: isDarkMode ? const Color(0xff2D336B) : const Color(0xff2D336B),
-          body: Container(
-            decoration: const BoxDecoration(),
-            child: Center(
-              child: ScaleTransition(
-                scale: tween.animate(CurvedAnimation(parent: controller, curve: Curves.ease)),
-                child: Image(
-                  height: 100.h,
-                  width: 100.w,
-                  image: const AssetImage('assets/icon/icon_round.png'),
-                ),
-              ),
+    return Scaffold(
+      backgroundColor: isDarkMode ? const Color(0xff2D336B) : const Color(0xff2D336B),
+      body: Container(
+        decoration: const BoxDecoration(),
+        child: Center(
+          child: ScaleTransition(
+            scale: tween.animate(CurvedAnimation(parent: controller, curve: Curves.ease)),
+            child: Image(
+              height: 100.h,
+              width: 100.w,
+              image: const AssetImage('assets/icon/icon_round.png'),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
