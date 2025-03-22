@@ -1,92 +1,97 @@
+import 'package:adrash/core/services/geocoding_service.dart';
+import 'package:adrash/core/services/location_service.dart';
+import 'package:adrash/features/Home/model/user_geocoded_loc.dart';
+import 'package:adrash/features/Home/viewmodel/map_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 
-final mapControllerProvider = StateProvider<GoogleMapController?>((ref) {
-  return null;
+// Location Stream Provider (AutoDispose to save resources)
+final locationStreamProvider = StreamProvider.autoDispose<LocationData>((ref) async* {
+  final locationService = ref.read(locationServiceProvider);
+  yield* locationService.getLocationDataStream();
+});
+// State Provider to hold the latest location
+final currentLocationProvider = StateProvider<LocationData?>((ref) => null);
+final locationUpdaterProvider = Provider<void>((ref) {
+  ref.listen(locationStreamProvider, (previous, next) {
+    if (next.hasValue) {
+      ref.read(currentLocationProvider.notifier).state = next.value;
+      if (next.value == null) return;
+      if (next.value?.latitude == null || next.value?.longitude == null) return;
+      LatLng newLatLng = LatLng(next.value!.latitude!, next.value!.longitude!);
+      ref.read(mapCameraPositionProvider.notifier).state = newLatLng;
+      if (ref.read(mapControllerProvider.notifier).state == null) return;
+      ref.read(mapControllerProvider.notifier).state!.animateCamera(CameraUpdate.newLatLng(newLatLng));
+    }
+  });
 });
 
-final isLocationPermissionEnabledProvider = StateProvider<bool>((ref) {
+//location
+final isLocationPermissionEnabledProvider = StateProvider<PermissionStatus>((ref) {
+  return PermissionStatus.denied;
+});
+
+final isLocationServicesEnabledProvider = StateProvider<bool>((ref) {
   return false;
 });
 
-final mapCameraPositionProvider = StateProvider<LatLng>((ref) {
-  return LatLng(37.7749, -122.4194);
+final userLocationGeocodedDataProvider = StateProvider<UserGeocodedLoc?>((ref) {
+  return null;
 });
 
-//!
-//!
-//!
-//!
-//!
-//!
-//!
-//!
-//!
-//!
-//!
-//!
-// final userLocationCoordinatesProvider = StateProvider<Position?>((ref) {
-//   return null;
-// });
+final userLocationViewmodelProvider = StateNotifierProvider<UserLocationViewmodelNotifier, void>((ref) {
+  final locationService = ref.watch(locationServiceProvider);
+  final geoCodingService = ref.watch(geoCodingServiceProvider);
+  final isLocationPermissionEnabledController = ref.watch(isLocationPermissionEnabledProvider.notifier);
+  final isLocationServicesEnabledController = ref.watch(isLocationServicesEnabledProvider.notifier);
+  final userLocationGeocodedDataController = ref.watch(userLocationGeocodedDataProvider.notifier);
+  return UserLocationViewmodelNotifier(
+    locationService: locationService,
+    geocodingService: geoCodingService,
+    isLocationPermissionEnabledController: isLocationPermissionEnabledController,
+    isLocationServicesEnabledController: isLocationServicesEnabledController,
+    userLocationGeocodedDataController: userLocationGeocodedDataController,
+  );
+});
 
-// final userLocationGeocodedDataProvider = StateProvider<UserGeocodedLoc?>((ref) {
-//   return null;
-// });
+class UserLocationViewmodelNotifier extends StateNotifier<void> {
+  LocationService locationService;
+  GeocodingService geocodingService;
+  StateController<PermissionStatus> isLocationPermissionEnabledController;
+  StateController<bool> isLocationServicesEnabledController;
+  StateController<UserGeocodedLoc?> userLocationGeocodedDataController;
+  UserLocationViewmodelNotifier({
+    required this.locationService,
+    required this.geocodingService,
+    required this.isLocationPermissionEnabledController,
+    required this.isLocationServicesEnabledController,
+    required this.userLocationGeocodedDataController,
+  }) : super(null);
 
-// final userLocationViewmodelProvider = StateNotifierProvider<UserLocationViewmodelNotifier, Position?>((ref) {
-//   final userLocationRepository = ref.watch(userLocationRepositoryProvider);
-//   final isLocationPermissionEnabledController = ref.watch(isLocationPermissionEnabledProvider.notifier);
-//   final userLocationCoordinatesController = ref.watch(userLocationCoordinatesProvider.notifier);
-//   final mapCameraPositionController = ref.watch(mapCameraPositionProvider.notifier);
-//   return UserLocationViewmodelNotifier(
-//     userLocationRepository: userLocationRepository,
-//     userLocationGeocodedDataController: ref.watch(userLocationGeocodedDataProvider.notifier),
-//     isLocationPermissionEnabledController: isLocationPermissionEnabledController,
-//     userLocationCoordinatesController: userLocationCoordinatesController,
-//     mapCameraPositionController: mapCameraPositionController,
-//   );
-// });
+  Future<bool> requestLocationService() async {
+    bool serviceEnabled = await locationService.requestLocationService();
+    isLocationServicesEnabledController.state = serviceEnabled;
+    return serviceEnabled;
+  }
 
-// class UserLocationViewmodelNotifier extends StateNotifier<Position?> {
-//   UserLocationRepository userLocationRepository;
-//   StateController<UserGeocodedLoc?> userLocationGeocodedDataController;
-//   StateController<bool> isLocationPermissionEnabledController;
-//   StateController<Position?> userLocationCoordinatesController;
-//   StateController<LatLng> mapCameraPositionController;
-//   UserLocationViewmodelNotifier({
-//     required this.userLocationRepository,
-//     required this.userLocationGeocodedDataController,
-//     required this.isLocationPermissionEnabledController,
-//     required this.userLocationCoordinatesController,
-//     required this.mapCameraPositionController,
-//   }) : super(null);
+  Future<PermissionStatus> requestLocationPermission() async {
+    PermissionStatus permissionStatus = await locationService.requestLocationPermission();
+    isLocationPermissionEnabledController.state = permissionStatus;
+    return permissionStatus;
+  }
 
-//   Future<bool> requestLocationPermission() async {
-//     await userLocationRepository.requestLocationPermission();
-//     bool isLocPermGranted = await _isLocationPermissionGranted();
-//     return isLocPermGranted;
-//   }
+  Future<LocationData> getCurrentLocationData() async {
+    LocationData locationData = await locationService.getCurrentLocationData();
+    getGeocodedData(locationData);
+    return locationData;
+  }
 
-//   Future<bool> _isLocationPermissionGranted() async {
-//     bool isLocationPermiGranted = await userLocationRepository.isLocationPermissionGranted();
-//     isLocationPermissionEnabledController.state = isLocationPermiGranted;
-//     return isLocationPermiGranted;
-//   }
-
-//   Future<Position> getUserLocation() async {
-//     Position position = await userLocationRepository.getUserLocation();
-//     userLocationCoordinatesController.state = position;
-//     LatLng newMapCameraPosition = LatLng(position.latitude, position.longitude);
-//     mapCameraPositionController.state = newMapCameraPosition;
-//     getGeocodingData(position);
-//     return position;
-//   }
-
-//   Future<UserGeocodedLoc?> getGeocodingData(Position position, {bool setState = true}) async {
-//     UserGeocodedLoc? placemark = await userLocationRepository.getGeocodingData(position);
-//     if (setState) {
-//       userLocationGeocodedDataController.state = placemark;
-//     }
-//     return placemark;
-//   }
-// }
+  Future<UserGeocodedLoc?> getGeocodedData(LocationData locationData, {bool setState = true}) async {
+    UserGeocodedLoc? userGeocodedLoc = await geocodingService.getGeocodedData(locationData);
+    if (setState) {
+      userLocationGeocodedDataController.state = userGeocodedLoc;
+    }
+    return userGeocodedLoc;
+  }
+}

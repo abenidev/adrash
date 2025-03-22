@@ -1,12 +1,11 @@
-import 'package:adrash/core/widgets/loader_manager.dart';
+import 'package:adrash/features/Home/model/user_geocoded_loc.dart';
 import 'package:adrash/features/Home/view/widgets/map_widget.dart';
-import 'package:adrash/features/auth/model/user_data.dart';
-import 'package:adrash/features/auth/view/auth_page.dart';
-import 'package:adrash/features/auth/viewmodel/auth_viewmodel.dart';
+import 'package:adrash/features/Home/viewmodel/user_location_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -23,7 +22,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   void initState() {
     super.initState();
-    afterBuildCreated(() {
+    afterBuildCreated(() async {
       // UserRole userRole = ref.read(authViewmodelProvider.notifier).getUserRole();
       // if (userRole == UserRole.rider) {
       //   showModalBottomSheet(
@@ -143,10 +142,16 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    UserData? userData = ref.watch(authViewmodelProvider);
-    // UserGeocodedLoc? userGeocodedData = ref.watch(userLocationGeocodedDataProvider);
-    // String locName = userGeocodedData?.name == null ? '' : '${userGeocodedData?.name},';
-    // String locSubLocality = userGeocodedData?.subLocality == null ? '' : '${userGeocodedData?.subLocality},';
+    // Initialize location updater
+    ref.watch(locationUpdaterProvider);
+
+    // Get the current location from state
+    LocationData? currentLocation = ref.watch(currentLocationProvider);
+    UserGeocodedLoc? userGeocodedData = ref.watch(userLocationGeocodedDataProvider);
+    String locName = userGeocodedData?.name == null ? '' : '${userGeocodedData?.name},';
+    String locSubLocality = userGeocodedData?.subLocality == null ? '' : '${userGeocodedData?.subLocality},';
+
+    // UserData? userData = ref.watch(authViewmodelProvider);
     // UserRole userRole = ref.watch(authViewmodelProvider.notifier).getUserRole();
 
     return Scaffold(
@@ -156,81 +161,93 @@ class _HomePageState extends ConsumerState<HomePage> {
           child: Stack(
             children: [
               MapWidget(),
-              Positioned(
-                top: 0,
-                left: 0,
-                child: Container(
-                  padding: EdgeInsets.only(top: 10.h, bottom: 5.h),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).canvasColor,
-                  ),
-                  width: 1.sw,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(left: 10.w),
-                        child: CircleAvatar(
-                          backgroundColor: Theme.of(context).canvasColor,
-                          radius: 17.w,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(50.0),
-                            child: userData != null
-                                ? Image(
-                                    image: NetworkImage(userData.profilePictureUrl),
-                                  )
-                                : null,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: 150.w,
-                        padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).canvasColor,
-                          borderRadius: BorderRadius.circular(5.w),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.navigation, size: 15.w, color: Colors.green),
-                                SizedBox(width: 2.w),
-                                Text(
-                                  'Your location',
-                                  style: TextStyle(fontSize: 10.sp),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              // "$locName $locSubLocality",
-                              "",
-                              style: TextStyle(fontSize: 10.sp),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () async {
-                          LoaderManager().show(context);
-                          bool isSignedOut = await ref.read(authViewmodelProvider.notifier).signOut();
-                          if (isSignedOut) {
-                            if (context.mounted) {
-                              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => AuthPage()), (route) => false);
-                            }
-                          }
-                          LoaderManager().hide();
-                        },
-                        icon: Icon(Icons.settings, size: 22.w),
-                      ),
-                    ],
-                  ),
+              Center(
+                child: Text(
+                  "$locName $locSubLocality",
+                  style: TextStyle(fontSize: 20.sp),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
+              // Center(
+              //   child: currentLocation != null ? Text('Lat: ${currentLocation.latitude}, Lng: ${currentLocation.longitude}') : const Text('Waiting for location...'),
+              // ),
+
+              // Positioned(
+              //   top: 0,
+              //   left: 0,
+              //   child: Container(
+              //     padding: EdgeInsets.only(top: 10.h, bottom: 5.h),
+              //     decoration: BoxDecoration(
+              //       color: Theme.of(context).canvasColor,
+              //     ),
+              //     width: 1.sw,
+              //     child: Row(
+              //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //       children: [
+              //         Padding(
+              //           padding: EdgeInsets.only(left: 10.w),
+              //           child: CircleAvatar(
+              //             backgroundColor: Theme.of(context).canvasColor,
+              //             radius: 17.w,
+              //             child: ClipRRect(
+              //               borderRadius: BorderRadius.circular(50.0),
+              //               child: userData != null
+              //                   ? Image(
+              //                       image: NetworkImage(userData.profilePictureUrl),
+              //                     )
+              //                   : null,
+              //             ),
+              //           ),
+              //         ),
+              //         Container(
+              //           width: 150.w,
+              //           padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
+              //           decoration: BoxDecoration(
+              //             color: Theme.of(context).canvasColor,
+              //             borderRadius: BorderRadius.circular(5.w),
+              //           ),
+              //           child: Column(
+              //             crossAxisAlignment: CrossAxisAlignment.center,
+              //             children: [
+              //               Row(
+              //                 mainAxisAlignment: MainAxisAlignment.center,
+              //                 children: [
+              //                   Icon(Icons.navigation, size: 15.w, color: Colors.green),
+              //                   SizedBox(width: 2.w),
+              //                   Text(
+              //                     'Your location',
+              //                     style: TextStyle(fontSize: 10.sp),
+              //                   ),
+              //                 ],
+              //               ),
+              //               Text(
+              //                 // "$locName $locSubLocality",
+              //                 "",
+              //                 style: TextStyle(fontSize: 10.sp),
+              //                 maxLines: 1,
+              //                 overflow: TextOverflow.ellipsis,
+              //               ),
+              //             ],
+              //           ),
+              //         ),
+              //         IconButton(
+              //           onPressed: () async {
+              //             LoaderManager().show(context);
+              //             bool isSignedOut = await ref.read(authViewmodelProvider.notifier).signOut();
+              //             if (isSignedOut) {
+              //               if (context.mounted) {
+              //                 Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => AuthPage()), (route) => false);
+              //               }
+              //             }
+              //             LoaderManager().hide();
+              //           },
+              //           icon: Icon(Icons.settings, size: 22.w),
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),
