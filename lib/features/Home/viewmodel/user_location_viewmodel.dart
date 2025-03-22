@@ -75,7 +75,9 @@ class UserLocationViewmodelNotifier extends StateNotifier<Position?> {
 
   Future<UserGeocodedLoc?> getGeocodingData(Position position, {bool setState = true}) async {
     UserGeocodedLoc? placemark = await userLocationRepository.getGeocodingData(position);
-    if (setState) userLocationGeocodedDataController.state = placemark;
+    if (setState) {
+      userLocationGeocodedDataController.state = placemark;
+    }
     return placemark;
   }
 }

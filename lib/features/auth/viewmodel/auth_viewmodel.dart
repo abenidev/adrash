@@ -1,3 +1,4 @@
+import 'package:adrash/core/constants/app_enums.dart';
 import 'package:adrash/features/auth/model/user_data.dart';
 import 'package:adrash/features/auth/repositories/auth_remote_repository.dart';
 import 'package:adrash/main.dart';
@@ -59,5 +60,10 @@ class AuthViewmodelNotifier extends StateNotifier<UserData?> {
     UserData? addedUserData = await authRemoteRepository.addUserData(userData);
     state = addedUserData;
     return addedUserData;
+  }
+
+  UserRole getUserRole() {
+    if (state == null) throw Exception('User is not signed in');
+    return state!.role.toUserRole;
   }
 }
