@@ -43,7 +43,6 @@ class RouteViewmodelNotifier extends StateNotifier<void> {
   }) : super(null);
 
   Future<void> getRouteData(fls.LocationData? destinationLocData) async {
-    destinationLocationDataController.state = destinationLocData;
     if (destinationLocData == null || currentLocationData == null) return;
     if (currentLocationData!.latitude == null || currentLocationData!.longitude == null) return;
     LatLng startLoc = LatLng(currentLocationData!.latitude!, currentLocationData!.longitude!);
@@ -85,6 +84,7 @@ class RouteViewmodelNotifier extends StateNotifier<void> {
         distanceInMeters: distance,
         durationInSeconds: duration,
       );
+      destinationLocationDataController.state = destinationLocData;
       routeDataController.state = newRouteData;
       mapZoomLevelController.state = 17.4;
     } catch (e) {
