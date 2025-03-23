@@ -1,4 +1,5 @@
 import 'package:adrash/core/services/route_service.dart';
+import 'package:adrash/features/Home/model/route_data.dart';
 import 'package:adrash/features/Home/viewmodel/map_viewmodel.dart';
 import 'package:adrash/features/Home/viewmodel/user_location_viewmodel.dart';
 import 'package:adrash/main.dart';
@@ -16,16 +17,14 @@ final routeViewmodelProvider = StateNotifierProvider<RouteViewmodelNotifier, voi
   final routeService = ref.watch(routeServiceProvider);
   final destinationLocationDataController = ref.watch(destinationLocationDataProvider.notifier);
   final currentLocationData = ref.watch(currentLocationProvider);
-  final routePolyLineController = ref.watch(routePolyLineProvider.notifier);
-  final mapMarkerController = ref.watch(mapMarkerProvider.notifier);
   final mapZoomLevelController = ref.watch(mapZoomLevelProvider.notifier);
+  final routeDataController = ref.watch(routeDataProvider.notifier);
   return RouteViewmodelNotifier(
     routeService: routeService,
     destinationLocationDataController: destinationLocationDataController,
     currentLocationData: currentLocationData,
-    routePolyLineController: routePolyLineController,
-    mapMarkerController: mapMarkerController,
     mapZoomLevelController: mapZoomLevelController,
+    routeDataController: routeDataController,
   );
 });
 
@@ -33,16 +32,14 @@ class RouteViewmodelNotifier extends StateNotifier<void> {
   RouteService routeService;
   StateController<fls.LocationData?> destinationLocationDataController;
   LocationData? currentLocationData;
-  StateController<Set<Polyline>?> routePolyLineController;
-  StateController<Set<Marker>?> mapMarkerController;
   StateController<double> mapZoomLevelController;
+  StateController<RouteData?> routeDataController;
   RouteViewmodelNotifier({
     required this.routeService,
     required this.destinationLocationDataController,
     required this.currentLocationData,
-    required this.routePolyLineController,
-    required this.mapMarkerController,
     required this.mapZoomLevelController,
+    required this.routeDataController,
   }) : super(null);
 
   Future<void> getRouteData(fls.LocationData? destinationLocData) async {
@@ -58,6 +55,15 @@ class RouteViewmodelNotifier extends StateNotifier<void> {
       if ((response['features'] as List).isEmpty) throw Exception('Failed to fetch directions, Please try again!');
       if (response['features'][0]['geometry'] == null) throw Exception('Failed to fetch directions, Please try again!');
       if (response['features'][0]['geometry']['coordinates'] == null) throw Exception('Failed to fetch directions, Please try again!');
+      if (response['features'][0]['properties'] == null) throw Exception('Failed to fetch directions, Please try again!');
+      if (response['features'][0]['properties']['summary'] == null) throw Exception('Failed to fetch directions, Please try again!');
+      if (response['features'][0]['properties']['summary']['distance'] == null) throw Exception('Failed to fetch directions, Please try again!');
+      if (response['features'][0]['properties']['summary']['duration'] == null) throw Exception('Failed to fetch directions, Please try again!');
+
+      //summary
+      double distance = response['features'][0]['properties']['summary']['distance'];
+      double durationInSecondDouble = response['features'][0]['properties']['summary']['duration'];
+      Duration duration = Duration(seconds: durationInSecondDouble.toInt());
 
       List<LatLng> polyPoints = [];
       final routeCoords = response['features'][0]['geometry']['coordinates'] as List;
@@ -68,10 +74,18 @@ class RouteViewmodelNotifier extends StateNotifier<void> {
       }
 
       Polyline polyline = Polyline(polylineId: PolylineId('route'), points: polyPoints, color: Colors.black, width: 5);
-      routePolyLineController.state = {polyline};
-
+      Marker startMarker = Marker(markerId: MarkerId('start'), position: startLoc, icon: BitmapDescriptor.defaultMarker);
       Marker destinationMarker = Marker(markerId: MarkerId('destination'), position: endLoc, icon: BitmapDescriptor.defaultMarker);
-      mapMarkerController.state = {destinationMarker};
+      RouteData newRouteData = RouteData(
+        startLoc: startLoc,
+        endLoc: endLoc,
+        polyline: {polyline},
+        startMarker: startMarker,
+        destinationMarker: destinationMarker,
+        distanceInMeters: distance,
+        durationInSeconds: duration,
+      );
+      routeDataController.state = newRouteData;
       mapZoomLevelController.state = 17.4;
     } catch (e) {
       logger.e(e);

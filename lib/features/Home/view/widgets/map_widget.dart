@@ -1,3 +1,4 @@
+import 'package:adrash/features/Home/model/route_data.dart';
 import 'package:adrash/features/Home/viewmodel/map_viewmodel.dart';
 import 'package:adrash/features/Home/viewmodel/user_location_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -29,8 +30,7 @@ class _MapWidgetState extends ConsumerState<MapWidget> {
     bool isLocationServiceEnabled = ref.watch(isLocationServicesEnabledProvider);
     PermissionStatus permissionStatus = ref.watch(isLocationPermissionEnabledProvider);
     bool isLocationPermissionEnabled = permissionStatus == PermissionStatus.granted && isLocationServiceEnabled;
-    Set<Polyline>? routePolyLine = ref.watch(routePolyLineProvider);
-    Set<Marker>? mapMarkers = ref.watch(mapMarkerProvider);
+    RouteData? routeData = ref.watch(routeDataProvider);
     double mapZoomLevel = ref.watch(mapZoomLevelProvider);
 
     // logger.i(routePolyLine?.first.points);
@@ -43,10 +43,11 @@ class _MapWidgetState extends ConsumerState<MapWidget> {
           // zoom: 17.4,
           zoom: mapZoomLevel,
         ),
+        zoomControlsEnabled: false,
         myLocationEnabled: isLocationPermissionEnabled, // Shows blue dot for current location
         myLocationButtonEnabled: false, // Enables "My Location" button
-        polylines: routePolyLine ?? {},
-        markers: mapMarkers ?? {},
+        polylines: routeData?.polyline ?? {},
+        markers: routeData?.destinationMarker != null ? {routeData!.destinationMarker} : {},
       ),
     );
   }

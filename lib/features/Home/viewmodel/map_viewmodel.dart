@@ -1,4 +1,5 @@
 //map
+import 'package:adrash/features/Home/model/route_data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -10,11 +11,7 @@ final mapControllerProvider = StateProvider<GoogleMapController?>((ref) {
   return null;
 });
 
-final routePolyLineProvider = StateProvider<Set<Polyline>?>((ref) {
-  return null;
-});
-
-final mapMarkerProvider = StateProvider<Set<Marker>?>((ref) {
+final routeDataProvider = StateProvider<RouteData?>((ref) {
   return null;
 });
 

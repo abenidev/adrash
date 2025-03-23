@@ -2,6 +2,7 @@ import 'package:adrash/core/utils/ui_utils.dart';
 import 'package:adrash/core/widgets/loader_manager.dart';
 import 'package:adrash/features/Home/view/pages/setting_page.dart';
 import 'package:adrash/features/Home/view/widgets/map_widget.dart';
+import 'package:adrash/features/Home/view/widgets/map_zoom_btns.dart';
 import 'package:adrash/features/Home/view/widgets/my_location_widget_btn.dart';
 import 'package:adrash/features/Home/view/widgets/profile_pic_widget.dart';
 import 'package:adrash/features/Home/view/widgets/destination_location_pick_widget.dart';
@@ -74,6 +75,12 @@ class _HomePageState extends ConsumerState<HomePage> {
               top: statusBarHeight + 10.h,
               right: 10.w,
               child: MyLocationWidgetBtn(),
+            ),
+
+            Positioned(
+              top: statusBarHeight + 10.h + 50.h,
+              right: 10.w,
+              child: MapZoomBtns(),
             ),
 
             Positioned(
