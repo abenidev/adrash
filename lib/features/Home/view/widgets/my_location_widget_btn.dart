@@ -26,7 +26,7 @@ class MyLocationWidgetBtn extends ConsumerWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {
+          onTap: () async {
             LocationData? locationData = ref.read(currentLocationProvider);
             if (locationData == null) return;
             if (locationData.latitude == null || locationData.longitude == null) return;

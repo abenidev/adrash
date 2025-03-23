@@ -20,7 +20,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
       body: Center(
         child: ElevatedButton(
           onPressed: () async {
-            LoaderManager().show(context);
+            LoaderManager().showStretchedDots(context);
             UserAuthStatus userAuthStatus = await ref.read(authViewmodelProvider.notifier).signInWithGoogle();
             LoaderManager().hide();
             if (context.mounted) {
