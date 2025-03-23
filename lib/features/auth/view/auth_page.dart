@@ -1,4 +1,7 @@
+import 'package:adrash/core/constants/app_enums.dart';
 import 'package:adrash/core/widgets/loader_manager.dart';
+import 'package:adrash/features/Home/view/pages/home_page.dart';
+import 'package:adrash/features/auth/view/register_page.dart';
 import 'package:adrash/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,9 +20,18 @@ class _AuthPageState extends ConsumerState<AuthPage> {
       body: Center(
         child: ElevatedButton(
           onPressed: () async {
-            LoaderManager().show(context);
-            await ref.read(authViewmodelProvider.notifier).signInWithGoogle();
+            LoaderManager().showStretchedDots(context);
+            UserAuthStatus userAuthStatus = await ref.read(authViewmodelProvider.notifier).signInWithGoogle();
             LoaderManager().hide();
+            if (context.mounted) {
+              if (userAuthStatus == UserAuthStatus.registered) {
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));
+              }
+              if (userAuthStatus == UserAuthStatus.unregistered) {
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RegisterPage()));
+              }
+              if (userAuthStatus == UserAuthStatus.initial) {}
+            }
           },
           child: Text('Sign in with Google'),
         ),

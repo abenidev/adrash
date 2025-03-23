@@ -397,7 +397,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         }
 
                         if (newUserData == null) return;
-                        LoaderManager().show(context);
+                        LoaderManager().showStretchedDots(context);
                         UserData? addedUserData = await ref.read(authViewmodelProvider.notifier).addUserData(newUserData);
                         LoaderManager().hide();
                         if (addedUserData == null) {

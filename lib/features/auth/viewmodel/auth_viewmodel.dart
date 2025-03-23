@@ -23,26 +23,54 @@ class AuthViewmodelNotifier extends StateNotifier<UserData?> {
   StateController<bool> isSigningInProvider;
   AuthViewmodelNotifier({required this.authRemoteRepository, required this.isSigningInProvider}) : super(null);
 
-  Future<void> signInWithGoogle() async {
+  Future<UserAuthStatus> signInWithGoogle() async {
     try {
       isSigningInProvider.state = true;
       User? user = await authRemoteRepository.signInWithGoogle();
       if (user != null) {
-        await getUserDataByEmail(user.email!);
+        UserData? userData = await getUserDataByEmail(user.email!);
+        isSigningInProvider.state = false;
+        if (userData == null) {
+          return UserAuthStatus.unregistered;
+        }
+        return UserAuthStatus.registered;
       }
-      isSigningInProvider.state = false;
+      return UserAuthStatus.initial;
     } catch (e) {
       logger.e('Error occured while signing in with Google: $e');
       isSigningInProvider.state = false;
+      return UserAuthStatus.initial;
     }
   }
 
-  Future<void> signOut() async {
+  Future<UserAuthStatus> getUserAuthStatus() async {
+    try {
+      isSigningInProvider.state = true;
+      User? user = getFirebaseAuthUser();
+      if (user != null) {
+        UserData? userData = await getUserDataByEmail(user.email!);
+        isSigningInProvider.state = false;
+        if (userData == null) {
+          return UserAuthStatus.unregistered;
+        }
+        return UserAuthStatus.registered;
+      }
+      return UserAuthStatus.initial;
+    } catch (e) {
+      logger.e('Error occured while signing in with Google: $e');
+      isSigningInProvider.state = false;
+      return UserAuthStatus.initial;
+    }
+  }
+
+  Future<bool> signOut() async {
     try {
       await authRemoteRepository.signOut();
       state = null;
+      return true;
     } catch (e) {
       logger.e(e);
+      return false;
     }
   }
 

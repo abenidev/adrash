@@ -10,7 +10,7 @@ class LoaderManager {
   OverlayEntry? _overlayEntry;
 
   // Show Loader
-  void show(BuildContext context) {
+  void show(BuildContext context, {required Widget child, bool showBg = true}) {
     if (_overlayEntry != null) return; // Avoid duplicate loaders
 
     _overlayEntry = OverlayEntry(
@@ -22,9 +22,17 @@ class LoaderManager {
           ),
           // Loader Widget
           Center(
-            child: LoadingAnimationWidget.stretchedDots(
-              color: Colors.white,
-              size: 50.w,
+            child: Container(
+              height: 40.h,
+              width: 50.w,
+              padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
+              decoration: !showBg
+                  ? null
+                  : BoxDecoration(
+                      color: Theme.of(context).canvasColor,
+                      borderRadius: BorderRadius.circular(5.w),
+                    ),
+              child: child,
             ),
           ),
         ],
@@ -32,6 +40,32 @@ class LoaderManager {
     );
 
     Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  void showStretchedDots(BuildContext context, {bool showBg = true}) {
+    show(
+      context,
+      child: Center(
+        child: LoadingAnimationWidget.stretchedDots(
+          color: Theme.of(context).primaryColor,
+          size: 30.w,
+        ),
+      ),
+      showBg: showBg,
+    );
+  }
+
+  void showThreeArchedCircle(BuildContext context, {bool showBg = true}) {
+    show(
+      context,
+      child: Center(
+        child: LoadingAnimationWidget.threeArchedCircle(
+          color: Theme.of(context).primaryColor,
+          size: 30.w,
+        ),
+      ),
+      showBg: showBg,
+    );
   }
 
   // Hide Loader
