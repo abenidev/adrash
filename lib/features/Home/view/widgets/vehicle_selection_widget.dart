@@ -1,4 +1,5 @@
 import 'package:adrash/core/constants/app_consts.dart';
+import 'package:adrash/core/widgets/loader_manager.dart';
 import 'package:adrash/features/Home/model/route_data.dart';
 import 'package:adrash/features/Home/utils/home_utils.dart';
 import 'package:adrash/features/Home/view/widgets/vehicle_card.dart';
@@ -47,7 +48,7 @@ class VehicleSelectionWidget extends ConsumerWidget {
           ),
           SizedBox(height: 20.h),
           SizedBox(
-            height: 150.h,
+            height: 155.h,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: vehicleTypes.length,
@@ -58,7 +59,10 @@ class VehicleSelectionWidget extends ConsumerWidget {
                     title: vehicleTypes[index].name,
                     price: calculateEconomyPrice(routeData.distanceInMeters),
                     seats: vehicleTypes[index].seat,
-                    onTap: () {
+                    onTap: () async {
+                      LoaderManager().showThreeArchedCircle(context, showBg: true);
+                      await Future.delayed(Duration(milliseconds: 800));
+                      LoaderManager().hide();
                       ref.read(selectedVehicleTypeProvider.notifier).state = vehicleTypes[index];
                       onVehicleTypeSelected();
                     },
@@ -81,9 +85,14 @@ class VehicleSelectionWidget extends ConsumerWidget {
                       content: Text('You are about to cancel a trip', style: TextStyle(fontSize: 12.sp)),
                       actions: [
                         TextButton(
-                          onPressed: () {
+                          onPressed: () async {
+                            LoaderManager().showThreeArchedCircle(context, showBg: true);
+                            await Future.delayed(Duration(milliseconds: 400));
+                            LoaderManager().hide();
                             ref.read(rideViewmodelProvider.notifier).cancelRide();
-                            Navigator.of(context).pop();
+                            if (context.mounted) {
+                              Navigator.of(context).pop();
+                            }
                           },
                           child: Text('Yes', style: TextStyle(fontSize: 12.sp)),
                         ),
@@ -100,6 +109,7 @@ class VehicleSelectionWidget extends ConsumerWidget {
               },
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.w)),
+                elevation: 0,
               ),
               child: Text('Cancel', style: TextStyle(fontSize: 12.sp)),
             ),

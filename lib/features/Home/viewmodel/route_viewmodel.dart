@@ -19,12 +19,14 @@ final routeViewmodelProvider = StateNotifierProvider<RouteViewmodelNotifier, voi
   final currentLocationData = ref.watch(currentLocationProvider);
   final mapZoomLevelController = ref.watch(mapZoomLevelProvider.notifier);
   final routeDataController = ref.watch(routeDataProvider.notifier);
+  final mapController = ref.watch(mapControllerProvider.notifier);
   return RouteViewmodelNotifier(
     routeService: routeService,
     destinationLocationDataController: destinationLocationDataController,
     currentLocationData: currentLocationData,
     mapZoomLevelController: mapZoomLevelController,
     routeDataController: routeDataController,
+    mapController: mapController,
   );
 });
 
@@ -34,12 +36,14 @@ class RouteViewmodelNotifier extends StateNotifier<void> {
   LocationData? currentLocationData;
   StateController<double> mapZoomLevelController;
   StateController<RouteData?> routeDataController;
+  StateController<GoogleMapController?> mapController;
   RouteViewmodelNotifier({
     required this.routeService,
     required this.destinationLocationDataController,
     required this.currentLocationData,
     required this.mapZoomLevelController,
     required this.routeDataController,
+    required this.mapController,
   }) : super(null);
 
   Future<void> getRouteData(fls.LocationData? destinationLocData) async {
@@ -86,35 +90,26 @@ class RouteViewmodelNotifier extends StateNotifier<void> {
       );
       destinationLocationDataController.state = destinationLocData;
       routeDataController.state = newRouteData;
-      mapZoomLevelController.state = 17.4;
+      // mapZoomLevelController.state = defaultMapZoomLevel;
+
+      //
+      LatLngBounds bounds = LatLngBounds(
+        southwest: LatLng(
+          startLoc.latitude < endLoc.latitude ? startLoc.latitude : endLoc.latitude,
+          startLoc.longitude < endLoc.longitude ? startLoc.longitude : endLoc.longitude,
+        ),
+        northeast: LatLng(
+          startLoc.latitude > endLoc.latitude ? startLoc.latitude : endLoc.latitude,
+          startLoc.longitude > endLoc.longitude ? startLoc.longitude : endLoc.longitude,
+        ),
+      );
+
+      if (mapController.state != null) {
+        mapController.state!.animateCamera(CameraUpdate.newLatLngBounds(bounds, 150));
+      }
     } catch (e) {
       logger.e(e);
       rethrow;
     }
-
-    //
   }
-
-  //!
-  // Future<void> getRouteData(fls.LocationData? destinationLocData) async {
-  //   destinationLocationDataController.state = destinationLocData;
-  //   if (destinationLocData == null || currentLocationData == null) return;
-  //   if (currentLocationData!.latitude == null || currentLocationData!.longitude == null) return;
-  //   LatLng startLoc = LatLng(currentLocationData!.latitude!, currentLocationData!.longitude!);
-  //   LatLng endLoc = LatLng(destinationLocData.latitude, destinationLocData.longitude);
-  //   try {
-  //     List<LatLng> polyPoints = await routeService.getRouteCoordinates(startLoc, endLoc);
-
-  //     Polyline polyline = Polyline(polylineId: PolylineId('route'), points: polyPoints, color: Colors.black, width: 5);
-  //     routePolyLineController.state = {polyline};
-
-  //     Marker destinationMarker = Marker(markerId: MarkerId('destination'), position: endLoc, icon: BitmapDescriptor.defaultMarker);
-  //     mapMarkerController.state = {destinationMarker};
-  //   } catch (e) {
-  //     logger.e(e);
-  //     rethrow;
-  //   }
-
-  //   //
-  // }
 }

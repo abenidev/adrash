@@ -44,7 +44,7 @@ class VehicleCard extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text("$seats seats", style: TextStyle(fontSize: 12.sp, color: Theme.of(context).primaryColor)),
+                    Text("$seats Seats", style: TextStyle(fontSize: 12.sp, color: Theme.of(context).primaryColor)),
                   ],
                 )
               ],

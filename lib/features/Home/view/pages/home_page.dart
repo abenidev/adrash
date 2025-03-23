@@ -8,6 +8,7 @@ import 'package:adrash/features/Home/view/widgets/map_zoom_btns.dart';
 import 'package:adrash/features/Home/view/widgets/my_location_widget_btn.dart';
 import 'package:adrash/features/Home/view/widgets/profile_pic_widget.dart';
 import 'package:adrash/features/Home/view/widgets/destination_location_pick_widget.dart';
+import 'package:adrash/features/Home/view/widgets/rider_searching_widget.dart';
 import 'package:adrash/features/Home/view/widgets/vehicle_selection_widget.dart';
 import 'package:adrash/features/Home/viewmodel/map_viewmodel.dart';
 import 'package:adrash/features/Home/viewmodel/ride_viewmodel.dart';
@@ -55,13 +56,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     // Initialize location updater
     ref.watch(locationUpdaterProvider);
 
-    // Get the current location from state
-    // LocationData? currentLocation = ref.watch(currentLocationProvider);
-    //
-    // UserData? userData = ref.watch(authViewmodelProvider);
-    // UserRole userRole = ref.watch(authViewmodelProvider.notifier).getUserRole();
-    // fls.LocationData? destinationLocationData = ref.watch(destinationLocationDataProvider);
-
     RouteData? routeData = ref.watch(routeDataProvider);
     VehicleType? selectedVehicleType = ref.watch(selectedVehicleTypeProvider);
 
@@ -70,7 +64,13 @@ class _HomePageState extends ConsumerState<HomePage> {
         decoration: const BoxDecoration(),
         child: Stack(
           children: [
-            MapWidget(),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: (routeData != null && selectedVehicleType == null) || (routeData != null && selectedVehicleType != null) ? 200.h : 0,
+              child: MapWidget(),
+            ),
             Positioned(
               top: statusBarHeight + 10.h,
               left: 10.w,
@@ -136,15 +136,18 @@ class _HomePageState extends ConsumerState<HomePage> {
                 left: 0,
                 right: 0,
                 child: VehicleSelectionWidget(
-                  onVehicleTypeSelected: () {
-                    //
-                  },
+                  onVehicleTypeSelected: () {},
                 ),
               ),
             ],
 
             if (routeData != null && selectedVehicleType != null) ...[
-              //
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: RiderSearchingWidget(),
+              ),
             ],
 
             //
@@ -154,5 +157,3 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 }
-
-//
