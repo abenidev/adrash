@@ -105,7 +105,7 @@ class RouteViewmodelNotifier extends StateNotifier<void> {
       );
 
       if (mapController.state != null) {
-        mapController.state!.animateCamera(CameraUpdate.newLatLngBounds(bounds, 150));
+        mapController.state!.animateCamera(CameraUpdate.newLatLngBounds(bounds, 120));
       }
     } catch (e) {
       logger.e(e);

@@ -16,6 +16,7 @@ import 'package:adrash/features/Home/viewmodel/route_viewmodel.dart';
 import 'package:adrash/features/Home/viewmodel/user_location_viewmodel.dart';
 import 'package:adrash/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_location_search/flutter_location_search.dart' as fls;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -97,35 +98,38 @@ class _HomePageState extends ConsumerState<HomePage> {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                child: DestinationLocationPickWidget(
-                  onToLocationTap: () async {
-                    fls.LocationData? destinationLocData;
-                    try {
-                      destinationLocData = await fls.LocationSearch.show(
-                        context: context,
-                        userAgent: fls.UserAgent(appName: 'Adrash', email: 'support@adrash.com'),
-                        mode: fls.Mode.fullscreen,
-                        searchBarBackgroundColor: Theme.of(context).canvasColor,
-                      );
-                    } catch (e) {
-                      logger.e(e);
-                      if (context.mounted) {
-                        showCustomSnackBar(context, "Coundn't get location. Please try again!", bgColor: Colors.red, textColor: Colors.white);
+                child: Animate(
+                  effects: [FadeEffect(), SlideEffect()],
+                  child: DestinationLocationPickWidget(
+                    onToLocationTap: () async {
+                      fls.LocationData? destinationLocData;
+                      try {
+                        destinationLocData = await fls.LocationSearch.show(
+                          context: context,
+                          userAgent: fls.UserAgent(appName: 'Adrash', email: 'support@adrash.com'),
+                          mode: fls.Mode.fullscreen,
+                          searchBarBackgroundColor: Theme.of(context).canvasColor,
+                        );
+                      } catch (e) {
+                        logger.e(e);
+                        if (context.mounted) {
+                          showCustomSnackBar(context, "Coundn't get location. Please try again!", bgColor: Colors.red, textColor: Colors.white);
+                        }
                       }
-                    }
 
-                    try {
-                      if (context.mounted) LoaderManager().showThreeArchedCircle(context, showBg: true);
-                      await ref.read(routeViewmodelProvider.notifier).getRouteData(destinationLocData);
-                      LoaderManager().hide();
-                    } catch (e) {
-                      logger.e(e);
-                      LoaderManager().hide();
-                      if (context.mounted) {
-                        showCustomSnackBar(context, "$e", bgColor: Colors.red, textColor: Colors.white);
+                      try {
+                        if (context.mounted) LoaderManager().showThreeArchedCircle(context, showBg: true);
+                        await ref.read(routeViewmodelProvider.notifier).getRouteData(destinationLocData);
+                        LoaderManager().hide();
+                      } catch (e) {
+                        logger.e(e);
+                        LoaderManager().hide();
+                        if (context.mounted) {
+                          showCustomSnackBar(context, "$e", bgColor: Colors.red, textColor: Colors.white);
+                        }
                       }
-                    }
-                  },
+                    },
+                  ),
                 ),
               ),
             ],
@@ -135,8 +139,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                child: VehicleSelectionWidget(
-                  onVehicleTypeSelected: () {},
+                child: Animate(
+                  effects: [FadeEffect(), SlideEffect()],
+                  child: VehicleSelectionWidget(
+                    onVehicleTypeSelected: () {},
+                  ),
                 ),
               ),
             ],
@@ -146,7 +153,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                child: RiderSearchingWidget(),
+                child: Animate(
+                  effects: [FadeEffect(), SlideEffect()],
+                  child: RiderSearchingWidget(),
+                ),
               ),
             ],
 
