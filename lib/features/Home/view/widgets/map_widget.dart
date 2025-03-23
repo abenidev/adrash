@@ -29,16 +29,24 @@ class _MapWidgetState extends ConsumerState<MapWidget> {
     bool isLocationServiceEnabled = ref.watch(isLocationServicesEnabledProvider);
     PermissionStatus permissionStatus = ref.watch(isLocationPermissionEnabledProvider);
     bool isLocationPermissionEnabled = permissionStatus == PermissionStatus.granted && isLocationServiceEnabled;
+    Set<Polyline>? routePolyLine = ref.watch(routePolyLineProvider);
+    Set<Marker>? mapMarkers = ref.watch(mapMarkerProvider);
+    double mapZoomLevel = ref.watch(mapZoomLevelProvider);
+
+    // logger.i(routePolyLine?.first.points);
 
     return Scaffold(
       body: GoogleMap(
         onMapCreated: (controller) => _onMapCreated(controller, ref),
         initialCameraPosition: CameraPosition(
           target: currentPosition,
-          zoom: 17.4,
+          // zoom: 17.4,
+          zoom: mapZoomLevel,
         ),
         myLocationEnabled: isLocationPermissionEnabled, // Shows blue dot for current location
         myLocationButtonEnabled: false, // Enables "My Location" button
+        polylines: routePolyLine ?? {},
+        markers: mapMarkers ?? {},
       ),
     );
   }

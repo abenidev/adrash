@@ -1,13 +1,15 @@
 import 'package:adrash/features/Home/model/user_geocoded_loc.dart';
+import 'package:adrash/features/Home/viewmodel/route_viewmodel.dart';
 import 'package:adrash/features/Home/viewmodel/user_location_viewmodel.dart';
 import 'package:adrash/features/auth/model/user_data.dart';
 import 'package:adrash/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_location_search/flutter_location_search.dart' as fls;
 
-class ToLocationPickWidget extends ConsumerWidget {
-  const ToLocationPickWidget({super.key, required this.onToLocationTap});
+class DestinationLocationPickWidget extends ConsumerWidget {
+  const DestinationLocationPickWidget({super.key, required this.onToLocationTap});
   final Function() onToLocationTap;
 
   @override
@@ -16,6 +18,7 @@ class ToLocationPickWidget extends ConsumerWidget {
     UserGeocodedLoc? userGeocodedData = ref.watch(userLocationGeocodedDataProvider);
     String locName = userGeocodedData?.name == null ? '' : '${userGeocodedData?.name},';
     String locSubLocality = userGeocodedData?.subLocality == null ? '' : '${userGeocodedData?.subLocality},';
+    fls.LocationData? destinationLocationData = ref.watch(destinationLocationDataProvider);
 
     return Container(
       constraints: BoxConstraints(
@@ -56,6 +59,8 @@ class ToLocationPickWidget extends ConsumerWidget {
             child: Text(
               userGeocodedData == null ? "Getting location..." : "$locName $locSubLocality",
               style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade400),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           SizedBox(height: 8.h),
@@ -80,8 +85,10 @@ class ToLocationPickWidget extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(5.w),
                   ),
                   child: Text(
-                    "Select address",
+                    destinationLocationData?.address ?? "Select address",
                     style: TextStyle(fontSize: 12.sp),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),

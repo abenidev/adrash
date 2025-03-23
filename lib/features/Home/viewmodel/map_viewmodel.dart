@@ -9,3 +9,15 @@ final mapCameraPositionProvider = StateProvider<LatLng>((ref) {
 final mapControllerProvider = StateProvider<GoogleMapController?>((ref) {
   return null;
 });
+
+final routePolyLineProvider = StateProvider<Set<Polyline>?>((ref) {
+  return null;
+});
+
+final mapMarkerProvider = StateProvider<Set<Marker>?>((ref) {
+  return null;
+});
+
+final mapZoomLevelProvider = StateProvider<double>((ref) {
+  return 17.4;
+});

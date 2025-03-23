@@ -1,13 +1,15 @@
-import 'package:adrash/core/constants/app_enums.dart';
+import 'package:adrash/core/utils/ui_utils.dart';
+import 'package:adrash/core/widgets/loader_manager.dart';
 import 'package:adrash/features/Home/view/pages/setting_page.dart';
 import 'package:adrash/features/Home/view/widgets/map_widget.dart';
 import 'package:adrash/features/Home/view/widgets/my_location_widget_btn.dart';
 import 'package:adrash/features/Home/view/widgets/profile_pic_widget.dart';
-import 'package:adrash/features/Home/view/widgets/to_location_pick_widget.dart';
+import 'package:adrash/features/Home/view/widgets/destination_location_pick_widget.dart';
+import 'package:adrash/features/Home/viewmodel/route_viewmodel.dart';
 import 'package:adrash/features/Home/viewmodel/user_location_viewmodel.dart';
-import 'package:adrash/features/auth/model/user_data.dart';
-import 'package:adrash/features/auth/viewmodel/auth_viewmodel.dart';
+import 'package:adrash/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_location_search/flutter_location_search.dart' as fls;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -48,10 +50,11 @@ class _HomePageState extends ConsumerState<HomePage> {
     ref.watch(locationUpdaterProvider);
 
     // Get the current location from state
-    LocationData? currentLocation = ref.watch(currentLocationProvider);
+    // LocationData? currentLocation = ref.watch(currentLocationProvider);
     //
-    UserData? userData = ref.watch(authViewmodelProvider);
-    UserRole userRole = ref.watch(authViewmodelProvider.notifier).getUserRole();
+    // UserData? userData = ref.watch(authViewmodelProvider);
+    // UserRole userRole = ref.watch(authViewmodelProvider.notifier).getUserRole();
+    // fls.LocationData? destinationLocationData = ref.watch(destinationLocationDataProvider);
 
     return Scaffold(
       body: Container(
@@ -77,85 +80,39 @@ class _HomePageState extends ConsumerState<HomePage> {
               bottom: 0,
               left: 0,
               right: 0,
-              child: ToLocationPickWidget(
-                onToLocationTap: () {
-                  //
+              child: DestinationLocationPickWidget(
+                onToLocationTap: () async {
+                  fls.LocationData? destinationLocData;
+                  try {
+                    destinationLocData = await fls.LocationSearch.show(
+                      context: context,
+                      userAgent: fls.UserAgent(appName: 'Adrash', email: 'support@adrash.com'),
+                      mode: fls.Mode.fullscreen,
+                      searchBarBackgroundColor: Theme.of(context).canvasColor,
+                    );
+                  } catch (e) {
+                    logger.e(e);
+                    if (context.mounted) {
+                      showCustomSnackBar(context, "Coundn't get location. Please try again!", bgColor: Colors.red, textColor: Colors.white);
+                    }
+                  }
+
+                  try {
+                    if (context.mounted) LoaderManager().show(context);
+                    await ref.read(routeViewmodelProvider.notifier).getRouteData(destinationLocData);
+                    LoaderManager().hide();
+                  } catch (e) {
+                    logger.e(e);
+                    LoaderManager().hide();
+                    if (context.mounted) {
+                      showCustomSnackBar(context, "$e", bgColor: Colors.red, textColor: Colors.white);
+                    }
+                  }
                 },
               ),
             ),
-            // Center(
-            //   child: Text(
-            //     "$locName $locSubLocality",
-            //     style: TextStyle(fontSize: 20.sp),
-            //     maxLines: 1,
-            //     overflow: TextOverflow.ellipsis,
-            //   ),
-            // ),
 
             //!
-            // Center(
-            //   child: currentLocation != null ? Text('Lat: ${currentLocation.latitude}, Lng: ${currentLocation.longitude}') : const Text('Waiting for location...'),
-            // ),
-            //!
-
-            // Positioned(
-            //   top: 0,
-            //   left: 0,
-            //   child: Container(
-            //     padding: EdgeInsets.only(top: 10.h, bottom: 5.h),
-            //     decoration: BoxDecoration(
-            //       color: Theme.of(context).canvasColor,
-            //     ),
-            //     width: 1.sw,
-            //     child: Row(
-            //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //       children: [
-            //         Padding(
-            //           padding: EdgeInsets.only(left: 10.w),
-            //           child: CircleAvatar(
-            //             backgroundColor: Theme.of(context).canvasColor,
-            //             radius: 17.w,
-            //             child: ClipRRect(
-            //               borderRadius: BorderRadius.circular(50.0),
-            //               child: userData != null
-            //                   ? Image(
-            //                       image: NetworkImage(userData.profilePictureUrl),
-            //                     )
-            //                   : null,
-            //             ),
-            //           ),
-            //         ),
-            //         Container(
-            //           width: 150.w,
-            //           padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
-            //           decoration: BoxDecoration(
-            //             color: Theme.of(context).canvasColor,
-            //             borderRadius: BorderRadius.circular(5.w),
-            //           ),
-            //           child: Column(
-            //             crossAxisAlignment: CrossAxisAlignment.center,
-            //             children: [
-            //               Row(
-            //                 mainAxisAlignment: MainAxisAlignment.center,
-            //                 children: [
-            //                   Icon(Icons.navigation, size: 15.w, color: Colors.green),
-            //                   SizedBox(width: 2.w),
-            //                   Text(
-            //                     'Your location',
-            //                     style: TextStyle(fontSize: 10.sp),
-            //                   ),
-            //                 ],
-            //               ),
-            //               Text(
-            //                 // "$locName $locSubLocality",
-            //                 "",
-            //                 style: TextStyle(fontSize: 10.sp),
-            //                 maxLines: 1,
-            //                 overflow: TextOverflow.ellipsis,
-            //               ),
-            //             ],
-            //           ),
-            //         ),
             //         IconButton(
             //           onPressed: () async {
             //             LoaderManager().show(context);
@@ -169,10 +126,6 @@ class _HomePageState extends ConsumerState<HomePage> {
             //           },
             //           icon: Icon(Icons.settings, size: 22.w),
             //         ),
-            //       ],
-            //     ),
-            //   ),
-            // ),
           ],
         ),
       ),

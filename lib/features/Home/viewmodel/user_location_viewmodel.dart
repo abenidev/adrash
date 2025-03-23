@@ -11,6 +11,9 @@ final locationStreamProvider = StreamProvider.autoDispose<LocationData>((ref) as
   final locationService = ref.read(locationServiceProvider);
   yield* locationService.getLocationDataStream();
 });
+final shouldReAnimateMapPositionProvider = StateProvider<bool>((ref) {
+  return true;
+});
 // State Provider to hold the latest location
 final currentLocationProvider = StateProvider<LocationData?>((ref) => null);
 final locationUpdaterProvider = Provider<void>((ref) {
@@ -19,10 +22,14 @@ final locationUpdaterProvider = Provider<void>((ref) {
       ref.read(currentLocationProvider.notifier).state = next.value;
       if (next.value == null) return;
       if (next.value?.latitude == null || next.value?.longitude == null) return;
+      bool shouldReanimateMapPosition = ref.read(shouldReAnimateMapPositionProvider);
       LatLng newLatLng = LatLng(next.value!.latitude!, next.value!.longitude!);
       ref.read(mapCameraPositionProvider.notifier).state = newLatLng;
       if (ref.read(mapControllerProvider.notifier).state == null) return;
-      ref.read(mapControllerProvider.notifier).state!.animateCamera(CameraUpdate.newLatLng(newLatLng));
+      if (shouldReanimateMapPosition) {
+        ref.read(mapControllerProvider.notifier).state!.animateCamera(CameraUpdate.newLatLng(newLatLng));
+        ref.read(shouldReAnimateMapPositionProvider.notifier).state = false;
+      }
     }
   });
 });
