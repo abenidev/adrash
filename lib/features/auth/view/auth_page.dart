@@ -1,4 +1,5 @@
 import 'package:adrash/core/constants/app_enums.dart';
+import 'package:adrash/core/utils/ui_utils.dart';
 import 'package:adrash/core/widgets/loader_manager.dart';
 import 'package:adrash/features/Home/view/pages/home_page.dart';
 import 'package:adrash/features/auth/view/register_page.dart';
@@ -29,6 +30,9 @@ class _AuthPageState extends ConsumerState<AuthPage> {
               }
               if (userAuthStatus == UserAuthStatus.unregistered) {
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RegisterPage()));
+              }
+              if (userAuthStatus == UserAuthStatus.unauthorized) {
+                showCustomSnackBar(context, 'User already registered as driver, please use another email address!', bgColor: Colors.red, textColor: Colors.white);
               }
               if (userAuthStatus == UserAuthStatus.initial) {}
             }

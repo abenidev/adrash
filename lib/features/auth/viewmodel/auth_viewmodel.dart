@@ -28,11 +28,16 @@ class AuthViewmodelNotifier extends StateNotifier<UserData?> {
       isSigningInProvider.state = true;
       User? user = await authRemoteRepository.signInWithGoogle();
       if (user != null) {
-        UserData? userData = await getUserDataByEmail(user.email!);
+        UserData? userData = await getUserDataByEmail(user.email!, setState: false);
         isSigningInProvider.state = false;
         if (userData == null) {
           return UserAuthStatus.unregistered;
         }
+        if (userData.role.toUserRole == UserRole.driver) {
+          await signOut();
+          return UserAuthStatus.unauthorized;
+        }
+        state = userData;
         return UserAuthStatus.registered;
       }
       return UserAuthStatus.initial;
@@ -84,10 +89,14 @@ class AuthViewmodelNotifier extends StateNotifier<UserData?> {
     return userData;
   }
 
-  Future<UserData?> addUserData(UserData userData) async {
-    UserData? addedUserData = await authRemoteRepository.addUserData(userData);
-    state = addedUserData;
-    return addedUserData;
+  Future<UserData> addUserData(UserData userData) async {
+    try {
+      UserData addedUserData = await authRemoteRepository.addUserData(userData);
+      state = addedUserData;
+      return addedUserData;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   UserRole getUserRole() {

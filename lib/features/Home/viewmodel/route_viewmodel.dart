@@ -54,14 +54,14 @@ class RouteViewmodelNotifier extends StateNotifier<void> {
     try {
       Map<String, dynamic> response = await routeService.getDirections(startLoc: startLoc, endLoc: endLoc);
       // logger.i("polyPoints: ${response['features'][0]['geometry']['coordinates']}");
-      if (response['features'] == null) throw Exception('Failed to fetch directions, Please try again!');
-      if ((response['features'] as List).isEmpty) throw Exception('Failed to fetch directions, Please try again!');
-      if (response['features'][0]['geometry'] == null) throw Exception('Failed to fetch directions, Please try again!');
-      if (response['features'][0]['geometry']['coordinates'] == null) throw Exception('Failed to fetch directions, Please try again!');
-      if (response['features'][0]['properties'] == null) throw Exception('Failed to fetch directions, Please try again!');
-      if (response['features'][0]['properties']['summary'] == null) throw Exception('Failed to fetch directions, Please try again!');
-      if (response['features'][0]['properties']['summary']['distance'] == null) throw Exception('Failed to fetch directions, Please try again!');
-      if (response['features'][0]['properties']['summary']['duration'] == null) throw Exception('Failed to fetch directions, Please try again!');
+      if (response['features'] == null) throw Exception('Failed to fetch directions: features, Please try again!');
+      if ((response['features'] as List).isEmpty) throw Exception('Failed to fetch directions: features is empty, Please try again!');
+      if (response['features'][0]['geometry'] == null) throw Exception('Failed to fetch directions: geometry, Please try again!');
+      if (response['features'][0]['geometry']['coordinates'] == null) throw Exception('Failed to fetch directions: coordinates, Please try again!');
+      if (response['features'][0]['properties'] == null) throw Exception('Failed to fetch directions: properties, Please try again!');
+      if (response['features'][0]['properties']['summary'] == null) throw Exception('Failed to fetch directions: summary, Please try again!');
+      if (response['features'][0]['properties']['summary']['distance'] == null) throw Exception('Failed to fetch directions: distance, Please try again!');
+      if (response['features'][0]['properties']['summary']['duration'] == null) throw Exception('Failed to fetch directions: duration, Please try again!');
 
       //summary
       double distance = response['features'][0]['properties']['summary']['distance'];

@@ -73,7 +73,7 @@ class AuthRemoteRepository {
     }
   }
 
-  Future<UserData?> addUserData(UserData userData) async {
+  Future<UserData> addUserData(UserData userData) async {
     try {
       DocumentReference docRef = await _firestore.collection(usersCollectionName).add(userData.toMap());
       UserData addedUserData = userData.copyWith(docDataId: docRef.id);
@@ -81,7 +81,7 @@ class AuthRemoteRepository {
       return addedUserData;
     } catch (e) {
       logger.e("Error adding user data: $e");
-      return null;
+      rethrow;
     }
   }
 

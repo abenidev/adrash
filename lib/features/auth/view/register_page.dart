@@ -9,9 +9,12 @@ import 'package:adrash/core/widgets/custom_dropdown.dart';
 import 'package:adrash/core/widgets/custom_phone_number_field.dart';
 import 'package:adrash/core/widgets/custom_textformfield.dart';
 import 'package:adrash/core/widgets/loader_manager.dart';
+import 'package:adrash/features/Home/view/pages/home_page.dart';
 import 'package:adrash/features/auth/model/user_data.dart';
 import 'package:adrash/features/auth/model/vehicle_data.dart';
+import 'package:adrash/features/auth/view/widgets/logout_btn.dart';
 import 'package:adrash/features/auth/viewmodel/auth_viewmodel.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
@@ -79,6 +82,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Register', style: TextStyle(fontSize: 16.sp)),
+        actions: [
+          LogoutBtn(),
+        ],
       ),
       body: Container(
         decoration: const BoxDecoration(),
@@ -100,8 +106,22 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                             backgroundColor: Theme.of(context).canvasColor,
                             child: firebaseUser?.photoURL == null
                                 ? null
-                                : Image(
-                                    image: NetworkImage(firebaseUser!.photoURL!),
+                                : CachedNetworkImage(
+                                    imageUrl: firebaseUser!.photoURL!,
+                                    imageBuilder: (context, imageProvider) => Container(
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(image: imageProvider, fit: BoxFit.fill),
+                                      ),
+                                    ),
+                                    placeholder: (context, url) => CircleAvatar(
+                                      backgroundColor: Theme.of(context).canvasColor,
+                                      radius: 17.w,
+                                    ),
+                                    errorWidget: (context, url, error) => CircleAvatar(
+                                      backgroundColor: Theme.of(context).canvasColor,
+                                      radius: 17.w,
+                                      child: Icon(Icons.error),
+                                    ),
                                   ),
                           ),
                         ),
@@ -125,7 +145,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
                     //Role
                     CustomDropdown(
-                      items: [UserRole.driver.name.capitalize, UserRole.rider.name.capitalize],
+                      items: [UserRole.rider.name.capitalize],
                       hint: 'Select a role',
                       onChanged: (value) {
                         if (value == null) return;
@@ -397,12 +417,17 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         }
 
                         if (newUserData == null) return;
-                        LoaderManager().showStretchedDots(context);
-                        UserData? addedUserData = await ref.read(authViewmodelProvider.notifier).addUserData(newUserData);
-                        LoaderManager().hide();
-                        if (addedUserData == null) {
+                        try {
+                          LoaderManager().showStretchedDots(context);
+                          UserData _ = await ref.read(authViewmodelProvider.notifier).addUserData(newUserData);
+                          LoaderManager().hide();
                           if (context.mounted) {
-                            showCustomSnackBar(context, 'Something went wrong while adding new user, Please try again!');
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));
+                          }
+                        } catch (e) {
+                          LoaderManager().hide();
+                          if (context.mounted) {
+                            showCustomSnackBar(context, '$e');
                           }
                           return;
                         }
