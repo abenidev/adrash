@@ -18,6 +18,10 @@ final locationStreamProvider = StreamProvider.autoDispose<LocationData>((ref) as
 final shouldReAnimateMapPositionProvider = StateProvider<bool>((ref) {
   return true;
 });
+
+final shouldGetGeoCodedDataProvider = StateProvider<bool>((ref) {
+  return true;
+});
 // State Provider to hold the latest location
 final currentLocationProvider = StateProvider<LocationData?>((ref) => null);
 final locationUpdaterProvider = Provider<void>((ref) {
@@ -27,11 +31,10 @@ final locationUpdaterProvider = Provider<void>((ref) {
       if (next.value == null) return;
       if (next.value?.latitude == null || next.value?.longitude == null) return;
 
-      bool shouldReanimateMapPosition = ref.read(shouldReAnimateMapPositionProvider);
       LatLng newLatLng = LatLng(next.value!.latitude!, next.value!.longitude!);
       ref.read(mapCameraPositionProvider.notifier).state = newLatLng;
       if (ref.read(mapControllerProvider.notifier).state == null) return;
-      logger.i("New Location: $newLatLng");
+      // logger.i("New Location: $newLatLng");
 
       //update user coll last loc data on firestore
       UserData? currentUserData = ref.read(authViewmodelProvider);
@@ -39,9 +42,16 @@ final locationUpdaterProvider = Provider<void>((ref) {
         ref.read(firestoreServiceProvider).updateUserCollLocation(currentUserData.docDataId, newLatLng);
       }
 
+      bool shouldReanimateMapPosition = ref.read(shouldReAnimateMapPositionProvider);
       if (shouldReanimateMapPosition) {
         ref.read(mapControllerProvider.notifier).state!.animateCamera(CameraUpdate.newLatLng(newLatLng));
         ref.read(shouldReAnimateMapPositionProvider.notifier).state = false;
+      }
+
+      bool shouldGetGeocodedData = ref.read(shouldGetGeoCodedDataProvider);
+      if (shouldGetGeocodedData) {
+        ref.read(userLocationViewmodelProvider.notifier).getGeocodedData(newLatLng);
+        ref.read(shouldGetGeoCodedDataProvider.notifier).state = false;
       }
     }
   });
@@ -102,12 +112,18 @@ class UserLocationViewmodelNotifier extends StateNotifier<void> {
   }
 
   Future<LocationData> getCurrentLocationData() async {
-    LocationData locationData = await locationService.getCurrentLocationData();
-    getGeocodedData(locationData);
-    return locationData;
+    try {
+      LocationData locationData = await locationService.getCurrentLocationData();
+      if (locationData.latitude == null || locationData.longitude == null) return locationData;
+      await getGeocodedData(LatLng(locationData.latitude!, locationData.longitude!));
+      return locationData;
+    } catch (e) {
+      logger.e(e);
+      rethrow;
+    }
   }
 
-  Future<UserGeocodedLoc?> getGeocodedData(LocationData locationData, {bool setState = true}) async {
+  Future<UserGeocodedLoc?> getGeocodedData(LatLng locationData, {bool setState = true}) async {
     UserGeocodedLoc? userGeocodedLoc = await geocodingService.getGeocodedData(locationData);
     if (setState) {
       userLocationGeocodedDataController.state = userGeocodedLoc;

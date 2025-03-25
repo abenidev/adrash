@@ -1,3 +1,4 @@
+import 'package:adrash_rider/main.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:location/location.dart';
 
@@ -37,8 +38,13 @@ class LocationService {
   }
 
   Future<LocationData> getCurrentLocationData() async {
-    LocationData locationData = await location.getLocation();
-    return locationData;
+    try {
+      LocationData locationData = await location.getLocation();
+      return locationData;
+    } catch (e) {
+      logger.e(e);
+      rethrow;
+    }
   }
 
   Future<bool> enableBackgroundMode() async {

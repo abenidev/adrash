@@ -3,8 +3,10 @@ import 'package:adrash_rider/features/home/view/widgets/map_widget.dart';
 import 'package:adrash_rider/features/home/view/widgets/map_zoom_btns.dart';
 import 'package:adrash_rider/features/home/view/widgets/my_location_widget_btn.dart';
 import 'package:adrash_rider/features/home/view/widgets/profile_pic_widget.dart';
+import 'package:adrash_rider/features/home/view/widgets/start_driving_widget.dart';
 import 'package:adrash_rider/features/home/viewmodel/user_location_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:location/location.dart';
@@ -27,7 +29,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         //TODO: handle cases when user doesn't allow permission or service
         bool isLocationServiceEnabled = await ref.read(userLocationViewmodelProvider.notifier).requestLocationService();
         if (isLocationServiceEnabled) {
-          ref.read(userLocationViewmodelProvider.notifier).getCurrentLocationData();
+          await ref.read(userLocationViewmodelProvider.notifier).getCurrentLocationData();
         }
       }
     });
@@ -68,6 +70,17 @@ class _HomePageState extends ConsumerState<HomePage> {
               top: statusBarHeight + 10.h + 50.h,
               right: 10.w,
               child: MapZoomBtns(),
+            ),
+
+            //
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Animate(
+                effects: [FadeEffect(), SlideEffect()],
+                child: StartDrivingWidget(),
+              ),
             ),
           ],
         ),

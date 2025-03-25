@@ -69,7 +69,7 @@ class MyApp extends ConsumerWidget {
           debugShowCheckedModeBanner: false,
           theme: FlexColorScheme.light(scheme: FlexScheme.blumineBlue, useMaterial3: true, fontFamily: 'Poppins').toTheme,
           darkTheme: FlexColorScheme.dark(scheme: FlexScheme.blumineBlue, useMaterial3: true, fontFamily: 'Poppins').toTheme,
-          themeMode: ThemeMode.system,
+          themeMode: ThemeMode.light,
           home: Root(),
         );
       },

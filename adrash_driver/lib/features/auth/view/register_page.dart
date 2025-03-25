@@ -9,9 +9,9 @@ import 'package:adrash_rider/core/widgets/loader_manager.dart';
 import 'package:adrash_rider/features/auth/model/user_data.dart';
 import 'package:adrash_rider/features/auth/model/vehicle_data.dart';
 import 'package:adrash_rider/features/auth/view/widgets/logout_btn.dart';
+import 'package:adrash_rider/features/auth/view/widgets/user_detail_widget.dart';
 import 'package:adrash_rider/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:adrash_rider/features/home/view/pages/home_page.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
@@ -93,50 +93,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 child: Column(
                   children: [
                     SizedBox(height: 10.h),
-                    Row(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(5.w),
-                          child: CircleAvatar(
-                            radius: 20.w,
-                            backgroundColor: Theme.of(context).canvasColor,
-                            child: firebaseUser?.photoURL == null
-                                ? null
-                                : CachedNetworkImage(
-                                    imageUrl: firebaseUser!.photoURL!,
-                                    imageBuilder: (context, imageProvider) => Container(
-                                      decoration: BoxDecoration(
-                                        image: DecorationImage(image: imageProvider, fit: BoxFit.fill),
-                                      ),
-                                    ),
-                                    placeholder: (context, url) => CircleAvatar(
-                                      backgroundColor: Theme.of(context).canvasColor,
-                                      radius: 17.w,
-                                    ),
-                                    errorWidget: (context, url, error) => CircleAvatar(
-                                      backgroundColor: Theme.of(context).canvasColor,
-                                      radius: 17.w,
-                                      child: Icon(Icons.error),
-                                    ),
-                                  ),
-                          ),
-                        ),
-                        SizedBox(width: 8.w),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              firebaseUser?.displayName ?? '',
-                              style: TextStyle(fontSize: 12.sp),
-                            ),
-                            Text(
-                              firebaseUser?.email ?? '',
-                              style: TextStyle(fontSize: 10.sp),
-                            ),
-                          ],
-                        ),
-                      ],
+                    UserDetailWidget(
+                      email: firebaseUser?.email,
+                      name: firebaseUser?.displayName,
+                      photoUrl: firebaseUser?.photoURL,
                     ),
+
                     SizedBox(height: 15.h),
 
                     //Role
