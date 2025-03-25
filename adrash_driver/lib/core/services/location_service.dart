@@ -14,7 +14,7 @@ class LocationService {
   Future<bool> changeSetting() async {
     return await location.changeSettings(
       accuracy: LocationAccuracy.high,
-      distanceFilter: 0,
+      distanceFilter: 50,
       interval: 10000,
     );
   }

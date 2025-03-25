@@ -1,8 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
-
 class VehicleData {
   String id;
   String make; //The manufacturer or brand of the vehicle (e.g., Toyota, Ford, Tesla).
@@ -11,10 +9,6 @@ class VehicleData {
   String licensePlate; //The unique license plate number of the vehicle.
   String color; //The color of the vehicle (e.g., Red, Black, White).
   int seats; //The number of seats in the vehicle.
-  // String fuelType; //The type of fuel used in the vehicle (e.g., Gasoline, Diesel, Electric).
-  // String transmission; //The type of transmission system used in the vehicle (e.g., Manual, Automatic, Semi-Automatic).
-  // double mileage; //The total distance the vehicle has traveled (odometer reading).
-  List<String> vehicleImages;
 
   VehicleData({
     required this.id,
@@ -24,8 +18,11 @@ class VehicleData {
     required this.licensePlate,
     required this.color,
     required this.seats,
-    required this.vehicleImages,
   });
+  // String fuelType; //The type of fuel used in the vehicle (e.g., Gasoline, Diesel, Electric).
+  // String transmission; //The type of transmission system used in the vehicle (e.g., Manual, Automatic, Semi-Automatic).
+  // double mileage; //The total distance the vehicle has traveled (odometer reading).
+  // List<String> vehicleImages;
 
   VehicleData copyWith({
     String? id,
@@ -35,7 +32,6 @@ class VehicleData {
     String? licensePlate,
     String? color,
     int? seats,
-    List<String>? vehicleImages,
   }) {
     return VehicleData(
       id: id ?? this.id,
@@ -45,7 +41,6 @@ class VehicleData {
       licensePlate: licensePlate ?? this.licensePlate,
       color: color ?? this.color,
       seats: seats ?? this.seats,
-      vehicleImages: vehicleImages ?? this.vehicleImages,
     );
   }
 
@@ -58,7 +53,6 @@ class VehicleData {
       'licensePlate': licensePlate,
       'color': color,
       'seats': seats,
-      'vehicleImages': vehicleImages,
     };
   }
 
@@ -71,9 +65,6 @@ class VehicleData {
       licensePlate: map['licensePlate'] as String,
       color: map['color'] as String,
       seats: map['seats'] as int,
-      vehicleImages: List<String>.from(
-        (map['vehicleImages'] as List<String>),
-      ),
     );
   }
 
@@ -83,25 +74,18 @@ class VehicleData {
 
   @override
   String toString() {
-    return 'VehicleData(id: $id, make: $make, model: $model, year: $year, licensePlate: $licensePlate, color: $color, seats: $seats, vehicleImages: $vehicleImages)';
+    return 'VehicleData(id: $id, make: $make, model: $model, year: $year, licensePlate: $licensePlate, color: $color, seats: $seats)';
   }
 
   @override
   bool operator ==(covariant VehicleData other) {
     if (identical(this, other)) return true;
 
-    return other.id == id &&
-        other.make == make &&
-        other.model == model &&
-        other.year == year &&
-        other.licensePlate == licensePlate &&
-        other.color == color &&
-        other.seats == seats &&
-        listEquals(other.vehicleImages, vehicleImages);
+    return other.id == id && other.make == make && other.model == model && other.year == year && other.licensePlate == licensePlate && other.color == color && other.seats == seats;
   }
 
   @override
   int get hashCode {
-    return id.hashCode ^ make.hashCode ^ model.hashCode ^ year.hashCode ^ licensePlate.hashCode ^ color.hashCode ^ seats.hashCode ^ vehicleImages.hashCode;
+    return id.hashCode ^ make.hashCode ^ model.hashCode ^ year.hashCode ^ licensePlate.hashCode ^ color.hashCode ^ seats.hashCode;
   }
 }

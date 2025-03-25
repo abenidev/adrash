@@ -1,9 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 // import 'package:adrash/features/auth/model/vehicle_data.dart';
 import 'dart:convert';
+import 'package:adrash_rider/core/utils/app_utils.dart';
 import 'package:adrash_rider/features/auth/model/vehicle_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class UserData {
   String id;
@@ -65,13 +66,6 @@ class UserData {
   }
 
   Map<String, dynamic> toMap() {
-    // Define GeoFirePoint by instantiating GeoFirePoint with latitude and longitude.
-    final GeoFirePoint geoFirePoint = GeoFirePoint(GeoPoint(lastLocLat, lastLocLong));
-    // Gets GeoPoint instance and Geohash string as Map<String, dynamic>.
-    final Map<String, dynamic> data = geoFirePoint.data;
-    // {geopoint: Instance of 'GeoPoint', geohash: xn76urx66}
-    // print(data);
-
     return <String, dynamic>{
       'id': id,
       'docDataId': docDataId,
@@ -83,7 +77,7 @@ class UserData {
       'profilePictureUrl': profilePictureUrl,
       // 'lastLocLat': lastLocLat,
       // 'lastLocLong': lastLocLong,
-      'lastLocData': data,
+      'lastLocData': convertLatLongToGeoPoint(LatLng(lastLocLat, lastLocLong)),
       'isDriverAvailable': isDriverAvailable,
       'vehicleData': vehicleData?.toMap(),
     };

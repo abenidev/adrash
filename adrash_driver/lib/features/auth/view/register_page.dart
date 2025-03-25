@@ -73,7 +73,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   Widget build(BuildContext context) {
     User? firebaseUser = ref.watch(authViewmodelProvider.notifier).getFirebaseAuthUser();
     UserRole? selectedUserRole = ref.watch(selectedRoleProvider);
-    List<String> selectedPhotos = ref.watch(selectedPhotosProvider);
+    // List<String> selectedPhotos = ref.watch(selectedPhotosProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -392,7 +392,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               licensePlate: _vehicleLicensePlateController.text.trim(),
                               color: _vehicleColorController.text.trim(),
                               seats: int.parse(_vehicleSeatsController.text.trim()),
-                              vehicleImages: selectedPhotos,
+                              // vehicleImages: selectedPhotos,
                             ),
                           );
                         }
