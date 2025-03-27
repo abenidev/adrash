@@ -9,6 +9,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class UserData {
   String id;
   String docDataId;
+  String driverDataDocId;
   String name;
   String email;
   String phoneNumber;
@@ -23,6 +24,7 @@ class UserData {
   UserData({
     required this.id,
     required this.docDataId,
+    required this.driverDataDocId,
     required this.name,
     required this.email,
     required this.phoneNumber,
@@ -38,6 +40,7 @@ class UserData {
   UserData copyWith({
     String? id,
     String? docDataId,
+    String? driverDataDocId,
     String? name,
     String? email,
     String? phoneNumber,
@@ -52,6 +55,7 @@ class UserData {
     return UserData(
       id: id ?? this.id,
       docDataId: docDataId ?? this.docDataId,
+      driverDataDocId: driverDataDocId ?? this.driverDataDocId,
       name: name ?? this.name,
       email: email ?? this.email,
       phoneNumber: phoneNumber ?? this.phoneNumber,
@@ -69,6 +73,7 @@ class UserData {
     return <String, dynamic>{
       'id': id,
       'docDataId': docDataId,
+      'driverDataDocId': driverDataDocId,
       'name': name,
       'email': email,
       'phoneNumber': phoneNumber,
@@ -90,6 +95,7 @@ class UserData {
     return UserData(
       id: map['id'] as String,
       docDataId: map['docDataId'] as String,
+      driverDataDocId: map['driverDataDocId'] as String,
       name: map['name'] as String,
       email: map['email'] as String,
       phoneNumber: map['phoneNumber'] as String,
@@ -109,7 +115,7 @@ class UserData {
 
   @override
   String toString() {
-    return 'UserData(id: $id, docDataId: $docDataId, name: $name, email: $email, phoneNumber: $phoneNumber, role: $role, rating: $rating, profilePictureUrl: $profilePictureUrl, lastLocLat: $lastLocLat, lastLocLong: $lastLocLong, isDriverAvailable: $isDriverAvailable, vehicleData: $vehicleData)';
+    return 'UserData(id: $id, docDataId: $docDataId, driverDataDocId: $driverDataDocId, name: $name, email: $email, phoneNumber: $phoneNumber, role: $role, rating: $rating, profilePictureUrl: $profilePictureUrl, lastLocLat: $lastLocLat, lastLocLong: $lastLocLong, isDriverAvailable: $isDriverAvailable, vehicleData: $vehicleData)';
   }
 
   @override
@@ -118,6 +124,7 @@ class UserData {
 
     return other.id == id &&
         other.docDataId == docDataId &&
+        other.driverDataDocId == driverDataDocId &&
         other.name == name &&
         other.email == email &&
         other.phoneNumber == phoneNumber &&
@@ -134,6 +141,7 @@ class UserData {
   int get hashCode {
     return id.hashCode ^
         docDataId.hashCode ^
+        driverDataDocId.hashCode ^
         name.hashCode ^
         email.hashCode ^
         phoneNumber.hashCode ^

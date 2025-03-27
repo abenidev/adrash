@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:adrash_rider/core/constants/app_strings.dart';
+import 'package:adrash_rider/core/models/driver_data.dart';
 import 'package:adrash_rider/features/auth/model/user_data.dart';
 import 'package:adrash_rider/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -76,8 +77,18 @@ class AuthRemoteRepository {
   Future<UserData> addUserData(UserData userData) async {
     try {
       DocumentReference docRef = await _firestore.collection(usersCollectionName).add(userData.toMap());
-      UserData addedUserData = userData.copyWith(docDataId: docRef.id);
-      await _firestore.collection(usersCollectionName).doc(docRef.id).set(addedUserData.toMap(), SetOptions(merge: true));
+      DriverData driverData = DriverData(
+        driverDocId: docRef.id,
+        lastLocLat: userData.lastLocLat,
+        lastLocLong: userData.lastLocLong,
+        isDriverAvailable: false,
+      );
+      DocumentReference driverDataDocRef = await _firestore.collection(driversCollectionName).add(driverData.toMap());
+      UserData addedUserData = userData.copyWith(docDataId: docRef.id, driverDataDocId: driverDataDocRef.id);
+      await _firestore.collection(usersCollectionName).doc(docRef.id).set(
+            addedUserData.toMap(),
+            SetOptions(merge: true),
+          );
       return addedUserData;
     } catch (e) {
       logger.e("Error adding user data: $e");

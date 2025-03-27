@@ -40,6 +40,7 @@ final locationUpdaterProvider = Provider<void>((ref) {
       UserData? currentUserData = ref.read(authViewmodelProvider);
       if (currentUserData != null) {
         ref.read(firestoreServiceProvider).updateUserCollLocation(currentUserData.docDataId, newLatLng);
+        ref.read(firestoreServiceProvider).updateDriversCollLocation(currentUserData.driverDataDocId, newLatLng);
       }
 
       bool shouldReanimateMapPosition = ref.read(shouldReAnimateMapPositionProvider);

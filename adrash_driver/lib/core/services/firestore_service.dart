@@ -21,4 +21,24 @@ class FirestoreService {
       rethrow;
     }
   }
+
+  Future<void> updateDriversCollLocation(String driverDataDocId, LatLng newLocation) async {
+    try {
+      await _firestore.collection(driversCollectionName).doc(driverDataDocId).update({
+        'lastLocData': convertLatLongToGeoPoint(newLocation),
+      });
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> updateDriverAvailability(String driverDataDocId, bool isDriverAvailable) async {
+    try {
+      await _firestore.collection(driversCollectionName).doc(driverDataDocId).update({
+        'isDriverAvailable': isDriverAvailable,
+      });
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

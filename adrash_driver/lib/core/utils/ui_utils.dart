@@ -131,3 +131,13 @@ void showCustomSnackBar(BuildContext context, String text, {Color bgColor = Colo
     ),
   );
 }
+
+void showErrorSnackBar(BuildContext context, String text, {Color bgColor = Colors.red, Color textColor = Colors.white}) {
+  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(text, style: TextStyle(color: textColor)),
+      backgroundColor: bgColor,
+    ),
+  );
+}

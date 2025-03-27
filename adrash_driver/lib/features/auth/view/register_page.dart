@@ -338,6 +338,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                           newUserData = UserData(
                             id: getUuid(),
                             docDataId: '',
+                            driverDataDocId: '',
                             name: firebaseUser?.displayName ?? kUnknown,
                             email: firebaseUser?.email ?? kUnknown,
                             phoneNumber: '+251${_phoneNumberController.text.trim()}',
