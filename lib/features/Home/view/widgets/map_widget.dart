@@ -1,6 +1,9 @@
+import 'package:adrash/core/models/driver_data.dart';
 import 'package:adrash/features/Home/model/route_data.dart';
+import 'package:adrash/features/Home/viewmodel/drivers_viewmodel.dart';
 import 'package:adrash/features/Home/viewmodel/map_viewmodel.dart';
 import 'package:adrash/features/Home/viewmodel/user_location_viewmodel.dart';
+import 'package:adrash/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -33,7 +36,11 @@ class _MapWidgetState extends ConsumerState<MapWidget> {
     RouteData? routeData = ref.watch(routeDataProvider);
     double mapZoomLevel = ref.watch(mapZoomLevelProvider);
 
-    // logger.i(routePolyLine?.first.points);
+    //
+    // AsyncValue<List<DriverData>> driversDataRangedStream = ref.watch(driversDataRangedStreamProvider);
+    List<DriverData> driversData = ref.watch(driversRangedListDataProvider);
+
+    logger.i(driversData);
 
     return Scaffold(
       body: GoogleMap(

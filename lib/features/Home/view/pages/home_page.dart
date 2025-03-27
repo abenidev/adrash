@@ -56,6 +56,8 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     // Initialize location updater
     ref.watch(locationUpdaterProvider);
+    // Drivers data updater
+    ref.watch(locationUpdaterProvider);
 
     RouteData? routeData = ref.watch(routeDataProvider);
     VehicleType? selectedVehicleType = ref.watch(selectedVehicleTypeProvider);
