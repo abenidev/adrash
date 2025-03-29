@@ -1,3 +1,4 @@
+import 'package:adrash/core/constants/app_strings.dart';
 import 'package:adrash/core/services/route_service.dart';
 import 'package:adrash/features/Home/model/route_data.dart';
 import 'package:adrash/features/Home/viewmodel/map_viewmodel.dart';
@@ -20,6 +21,7 @@ final routeViewmodelProvider = StateNotifierProvider<RouteViewmodelNotifier, voi
   final mapZoomLevelController = ref.watch(mapZoomLevelProvider.notifier);
   final routeDataController = ref.watch(routeDataProvider.notifier);
   final mapController = ref.watch(mapControllerProvider.notifier);
+  final mapMarkerController = ref.watch(mapMarkerProvider.notifier);
   return RouteViewmodelNotifier(
     routeService: routeService,
     destinationLocationDataController: destinationLocationDataController,
@@ -27,6 +29,7 @@ final routeViewmodelProvider = StateNotifierProvider<RouteViewmodelNotifier, voi
     mapZoomLevelController: mapZoomLevelController,
     routeDataController: routeDataController,
     mapController: mapController,
+    mapMarkerController: mapMarkerController,
   );
 });
 
@@ -37,6 +40,7 @@ class RouteViewmodelNotifier extends StateNotifier<void> {
   StateController<double> mapZoomLevelController;
   StateController<RouteData?> routeDataController;
   StateController<GoogleMapController?> mapController;
+  StateController<Set<Marker>> mapMarkerController;
   RouteViewmodelNotifier({
     required this.routeService,
     required this.destinationLocationDataController,
@@ -44,6 +48,7 @@ class RouteViewmodelNotifier extends StateNotifier<void> {
     required this.mapZoomLevelController,
     required this.routeDataController,
     required this.mapController,
+    required this.mapMarkerController,
   }) : super(null);
 
   Future<void> getRouteData(fls.LocationData? destinationLocData) async {
@@ -77,8 +82,8 @@ class RouteViewmodelNotifier extends StateNotifier<void> {
       }
 
       Polyline polyline = Polyline(polylineId: PolylineId('route'), points: polyPoints, color: Colors.black, width: 5);
-      Marker startMarker = Marker(markerId: MarkerId('start'), position: startLoc, icon: BitmapDescriptor.defaultMarker);
-      Marker destinationMarker = Marker(markerId: MarkerId('destination'), position: endLoc, icon: BitmapDescriptor.defaultMarker);
+      Marker startMarker = Marker(markerId: MarkerId(startMarkerId), position: startLoc, icon: BitmapDescriptor.defaultMarker);
+      Marker destinationMarker = Marker(markerId: MarkerId(destinationMarkerId), position: endLoc, icon: BitmapDescriptor.defaultMarker);
       RouteData newRouteData = RouteData(
         startLoc: startLoc,
         endLoc: endLoc,
@@ -90,6 +95,12 @@ class RouteViewmodelNotifier extends StateNotifier<void> {
       );
       destinationLocationDataController.state = destinationLocData;
       routeDataController.state = newRouteData;
+      //add marker to map marker provider
+      Set<Marker> oldMarkerData = mapMarkerController.state;
+      oldMarkerData.add(destinationMarker);
+      mapMarkerController.state = oldMarkerData;
+
+      //
       // mapZoomLevelController.state = defaultMapZoomLevel;
 
       //

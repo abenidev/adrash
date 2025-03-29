@@ -20,3 +20,7 @@ final routeDataProvider = StateProvider<RouteData?>((ref) {
 final mapZoomLevelProvider = StateProvider<double>((ref) {
   return defaultMapZoomLevel;
 });
+
+final mapMarkerProvider = StateProvider<Set<Marker>>((ref) {
+  return {};
+});

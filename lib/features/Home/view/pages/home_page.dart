@@ -10,6 +10,7 @@ import 'package:adrash/features/Home/view/widgets/profile_pic_widget.dart';
 import 'package:adrash/features/Home/view/widgets/destination_location_pick_widget.dart';
 import 'package:adrash/features/Home/view/widgets/rider_searching_widget.dart';
 import 'package:adrash/features/Home/view/widgets/vehicle_selection_widget.dart';
+import 'package:adrash/features/Home/viewmodel/drivers_viewmodel.dart';
 import 'package:adrash/features/Home/viewmodel/map_viewmodel.dart';
 import 'package:adrash/features/Home/viewmodel/ride_viewmodel.dart';
 import 'package:adrash/features/Home/viewmodel/route_viewmodel.dart';
@@ -57,7 +58,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     // Initialize location updater
     ref.watch(locationUpdaterProvider);
     // Drivers data updater
-    ref.watch(locationUpdaterProvider);
+    ref.watch(driversDataRangedUpdaterProvider);
 
     RouteData? routeData = ref.watch(routeDataProvider);
     VehicleType? selectedVehicleType = ref.watch(selectedVehicleTypeProvider);

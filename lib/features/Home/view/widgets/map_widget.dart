@@ -35,12 +35,12 @@ class _MapWidgetState extends ConsumerState<MapWidget> {
     bool isLocationPermissionEnabled = permissionStatus == PermissionStatus.granted && isLocationServiceEnabled;
     RouteData? routeData = ref.watch(routeDataProvider);
     double mapZoomLevel = ref.watch(mapZoomLevelProvider);
+    Set<Marker> mapMarkers = ref.watch(mapMarkerProvider);
 
     //
     // AsyncValue<List<DriverData>> driversDataRangedStream = ref.watch(driversDataRangedStreamProvider);
     List<DriverData> driversData = ref.watch(driversRangedListDataProvider);
-
-    logger.i(driversData);
+    logger.i("driversData: $driversData");
 
     return Scaffold(
       body: GoogleMap(
@@ -54,7 +54,8 @@ class _MapWidgetState extends ConsumerState<MapWidget> {
         myLocationEnabled: isLocationPermissionEnabled, // Shows blue dot for current location
         myLocationButtonEnabled: false, // Enables "My Location" button
         polylines: routeData?.polyline ?? {},
-        markers: routeData?.destinationMarker != null ? {routeData!.destinationMarker} : {},
+        // markers: routeData?.destinationMarker != null ? {routeData!.destinationMarker} : {},
+        markers: mapMarkers,
       ),
     );
   }

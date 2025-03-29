@@ -1,5 +1,6 @@
 import 'package:adrash/core/constants/app_consts.dart';
 import 'package:adrash/core/constants/app_nums.dart';
+import 'package:adrash/core/constants/app_strings.dart';
 import 'package:adrash/features/Home/model/route_data.dart';
 import 'package:adrash/features/Home/model/vehicle_type.dart';
 import 'package:adrash/features/Home/viewmodel/map_viewmodel.dart';
@@ -19,6 +20,7 @@ final rideViewmodelProvider = StateNotifierProvider<RideViewmodelNotifier, void>
   final mapController = ref.watch(mapControllerProvider.notifier);
   final destinationLocationDataController = ref.watch(destinationLocationDataProvider.notifier);
   final selectedVehicleTypeController = ref.watch(selectedVehicleTypeProvider.notifier);
+  final mapMarkerController = ref.watch(mapMarkerProvider.notifier);
   return RideViewmodelNotifier(
     routeDataController: routeDataController,
     mapZoomLevelController: mapZoomLevelController,
@@ -26,6 +28,7 @@ final rideViewmodelProvider = StateNotifierProvider<RideViewmodelNotifier, void>
     mapController: mapController,
     destinationLocationDataController: destinationLocationDataController,
     selectedVehicleTypeController: selectedVehicleTypeController,
+    mapMarkerController: mapMarkerController,
   );
 });
 
@@ -36,6 +39,7 @@ class RideViewmodelNotifier extends StateNotifier<void> {
   StateController<GoogleMapController?> mapController;
   StateController<fls.LocationData?> destinationLocationDataController;
   StateController<VehicleType?> selectedVehicleTypeController;
+  StateController<Set<Marker>> mapMarkerController;
 
   RideViewmodelNotifier({
     required this.routeDataController,
@@ -44,13 +48,24 @@ class RideViewmodelNotifier extends StateNotifier<void> {
     required this.mapController,
     required this.destinationLocationDataController,
     required this.selectedVehicleTypeController,
+    required this.mapMarkerController,
   }) : super(null);
 
   void cancelRide() {
+    RouteData? oldRouteData = routeDataController.state;
+    if (oldRouteData != null) {
+      //reset map to current user location
+      mapController.state!.animateCamera(CameraUpdate.newLatLng(oldRouteData.startLoc));
+    }
     routeDataController.state = null;
     mapZoomLevelController.state = defaultMapZoomLevel;
     mapCameraPositionController.state = defaultMapCoordinate;
     destinationLocationDataController.state = null;
     selectedVehicleTypeController.state = null;
+
+    //remove marker
+    Set<Marker> oldMarkers = mapMarkerController.state;
+    oldMarkers.removeWhere((marker) => marker.markerId.value == destinationMarkerId);
+    mapMarkerController.state = oldMarkers;
   }
 }
